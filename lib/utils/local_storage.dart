@@ -10,7 +10,6 @@ saveAbout(about) async {
 }
 
 savePropertyItem(cartItems) async {
-
   s_prefs = await SharedPreferences.getInstance();
   String jsonString = jsonEncode(cartItems);
   s_prefs.setString("propItem", jsonString);
@@ -37,20 +36,41 @@ saveSurname(surname) async {
   s_prefs.setString("surname", surname);
 }
 
+saveCreatedAt(tm) async {
+  s_prefs = await SharedPreferences.getInstance();
+  s_prefs.setString("created", tm);
+}
+
 savePhone(cred) async {
   s_prefs = await SharedPreferences.getInstance();
   s_prefs.setString("phone", cred);
 }
 
-saveCity(city) async {
+saveUser(user) async {
   s_prefs = await SharedPreferences.getInstance();
-  s_prefs.setString("city", city);
+  s_prefs.setString("user", user);
+}
+
+showUser() async {
+  s_prefs = await SharedPreferences.getInstance();
+
+  String? temp = s_prefs.getString("user");
+
+  return temp;
 }
 
 showSelfie() async {
   s_prefs = await SharedPreferences.getInstance();
 
   String? temp = s_prefs.getString("selfie");
+
+  return temp;
+}
+
+showCreated() async {
+  s_prefs = await SharedPreferences.getInstance();
+
+  String? temp = s_prefs.getString("created");
 
   return temp;
 }
@@ -63,6 +83,11 @@ saveSelfie(ustate) async {
 saveEmail(email) async {
   s_prefs = await SharedPreferences.getInstance();
   s_prefs.setString("email", email);
+}
+
+saveWSSVerify(status) async {
+  s_prefs = await SharedPreferences.getInstance();
+  s_prefs.setBool("verify", status);
 }
 
 saveToken(tk) async {
@@ -93,6 +118,14 @@ showRef() async {
   s_prefs = await SharedPreferences.getInstance();
 
   String? temp = s_prefs.getString("token");
+
+  return temp;
+}
+
+showWSSVerify() async {
+  s_prefs = await SharedPreferences.getInstance();
+
+  bool? temp = s_prefs.getBool("verify");
 
   return temp;
 }
@@ -245,26 +278,6 @@ showNotify() async {
   int? temp = s_prefs.getInt("Poly");
 
   return temp;
-}
-
-savePolypk(Polypk) async {
-  s_prefs = await SharedPreferences.getInstance();
-  s_prefs.setString("Polypk", Polypk);
-}
-
-showPolypk() async {
-  s_prefs = await SharedPreferences.getInstance();
-
-  String? temp = s_prefs.getString("Polypk");
-
-  return temp;
-}
-
-delete_cart() async {
-  s_prefs = await SharedPreferences.getInstance();
-  s_prefs.remove("cartItem");
-
-  //temp = " ";
 }
 
 class Storage {

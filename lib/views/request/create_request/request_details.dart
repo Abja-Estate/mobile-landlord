@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import '../../../components/buttons.dart';
 import '../../../components/input_field.dart';
@@ -52,20 +52,12 @@ class _RequestDetailsState extends State<RequestDetails> {
     "problems": []
   };
   var landlordID = '';
-  var unitID = '';
 
   bool startOver = false;
   getPropertyItems() async {
-    var unitString = ""; // await showUnitData();
-    var propertyString = ""; //await showPropertyData();
-    unitID ="";// await showuuId();
-    var getUnit = Map<String, dynamic>.from(jsonDecode(unitString));
-    var getProperty = Map<String, dynamic>.from(jsonDecode(propertyString));
-    setState(() {
-      mUnit = getUnit;
-      property = getProperty;
+    landlordID = await showId();
 
-      landlordID = mUnit['landlordID'];
+    setState(() {
       select = List.generate(issues.length, (index) => false);
     });
   }
@@ -139,7 +131,9 @@ class _RequestDetailsState extends State<RequestDetails> {
         <String, dynamic>{}) as Map;
     agent = dataFromRoute["agent"];
     issues = dataFromRoute["job"];
-
+    property = dataFromRoute["data"];
+    requestData['email'] = property["email"];
+    requestData['phone'] = property["phone"];
     return Scaffold(
         body: SafeArea(
             child: SingleChildScrollView(
@@ -679,12 +673,13 @@ class _RequestDetailsState extends State<RequestDetails> {
                 ),
                 CustomInput3(
                   onSaved: (v) {},
+                  enabled: false,
                   onChanged: (p) {
-                    requestData['phone'] = p;
+                    // requestData['phone'] = p;
                   },
-                  hint: 'Phone',
+                  hint: requestData['phone'],
                   type: 'number',
-                  label: 'Phone Number',
+                  label: requestData['phone'],
                 ),
                 SizedBox(
                   height: _getSize.height * 0.04,
@@ -707,11 +702,12 @@ class _RequestDetailsState extends State<RequestDetails> {
                 ),
                 CustomInput3(
                   onSaved: (v) {},
+                  enabled: false,
                   onChanged: (p) {
-                    requestData['email'] = p;
+                    //requestData['email'] = p;
                   },
-                  hint: 'Email',
-                  label: 'Email',
+                  hint: requestData['email'],
+                  label: requestData['email'],
                 ),
                 SizedBox(
                   height: _getSize.height * 0.08,
@@ -721,20 +717,18 @@ class _RequestDetailsState extends State<RequestDetails> {
                   child: ButtonWithFuction(
                       text: 'Submit',
                       onPressed: () async {
-                        await saveToken(false);
+                        await saveWSSVerify(false);
                         var dt = DateTime.now();
                         requestData['agent'] = agent;
                         requestData['problems'] = problemsArray;
-                        requestData["tenantUnit"] = unitID;
+                        requestData["tenantUnit"] = property["tenantUnit"];
                         requestData["time"] = dt.toString();
-                        requestData['fullName'] =
-                            '${mUnit['tenantInfo']['name']} ${mUnit['tenantInfo']['surname']}';
-                        requestData["tenantPhoto"] =
-                            mUnit['tenantInfo']['selfie'];
-                        requestData["from"] = "tenant";
+                        requestData['fullName'] = property["fullName"];
+                        requestData["tenantPhoto"] = property["tenantPhoto"];
+                        requestData["from"] = "landlord";
                         requestData["propertyLocation"] = property["location"];
                         requestData["propertyName"] = property["propertyName"];
-                        requestData["landlordID"] = landlordID;
+                        requestData["ownerID"] = landlordID;
                         requestData["propertyStructure"] =
                             property["propertyStructure"];
                         requestData["period"] = "$periodA - $periodB";
@@ -742,13 +736,12 @@ class _RequestDetailsState extends State<RequestDetails> {
 
                         setState(() {});
                         Map<String, dynamic> data = {
-                          "target_id": landlordID,
+                          "target_id": "abja2024Admin",
                           "message": jsonEncode(requestData),
-                          "sender_id": unitID
+                          "sender_id": landlordID
                         };
                         print(data);
 
-// Example usage:
                         if (isDataEmpty(requestData)) {
                           AppUtils.ErrorDialog(
                             context,
@@ -765,7 +758,7 @@ class _RequestDetailsState extends State<RequestDetails> {
                           AppUtils.showLoader(context);
                           webSocketProvider.sendMessage(jsonEncode(data));
                           await Future.delayed(Duration(seconds: 2));
-                          var m = await showToken();
+                          var m = await showWSSVerify();
                           setState(() {});
                           print(m);
                           Navigator.of(context).pop();
@@ -807,6 +800,7 @@ class _RequestDetailsState extends State<RequestDetails> {
                                 size: 30,
                               ),
                             );
+                            await webSocketProvider.init();
                           }
                         }
                       }),

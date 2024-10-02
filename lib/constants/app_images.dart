@@ -11,10 +11,18 @@ class AppImages {
   static const bg = 'assets/images/bg.png';
   static const place = 'assets/images/place.png';
   static const banner = 'assets/images/banner.png';
+  static const noNotification = 'assets/images/no.png';
+  static const noRequest = 'assets/images/no_request.png';
+  static const noTenant = 'assets/images/no_tenant.png';
 
 //ICONS
 //general icons
   static const logo = 'assets/icons/logo.png';
+  static const forwardTag = 'assets/icons/forward-tag.png';
+  static const calls = 'assets/icons/calls.png';
+  static const inboxFilled = 'assets/icons/inbox-filled.png';
+  static const calender = 'assets/icons/calenda.png';
+  static const calender2 = 'assets/icons/calendar.png';
   static const location = 'assets/icons/locate.png';
   static const cart = 'assets/images/icons/cart.png';
   static const google = 'assets/icons/google.png';
@@ -49,7 +57,7 @@ class AppImages {
   static const greenMark = 'assets/images/icons/green_mark.png';
   static const estate = 'assets/icons/estate.png';
   static const estatefilled = 'assets/icons/estatef.png';
-  static const call = 'assets/images/icons/call.png';
+  static const call = 'assets/icons/call.png';
   static const tag = 'assets/icons/tag.png';
   static const joined = 'assets/icons/join.png';
   static const bags = 'assets/icons/bags.png';

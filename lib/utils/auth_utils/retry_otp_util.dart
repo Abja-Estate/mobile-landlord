@@ -11,29 +11,34 @@ import '../local_storage.dart';
 class RetryOTPUtil {
   static Future<String> retry(BuildContext context) async {
     var email = await showEmail();
-    var phone = await showPhone();
-    print(email);
+  
+  
     AppUtils.showLoader(context);
     var result;
     Provider.of<AuthProvider>(context, listen: false)
         .forgotPassword(email)
         .then((value) async {
       Navigator.of(context).pop();
-      print(value);
+   
       if (value['statusCode'] != 200) {
-        AppUtils.ErrorDialog(
-          context,
-          value['error'] ?? "",
-          'User not found',
-          'Close',
-          Icon(
-            Icons.error_rounded,
-            color: Color.fromARGB(255, 213, 10, 27),
-            size: 30,
-          ),
-        );
+        if (value["error"] == "Expired Bearer token") {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              AppRoutes.forgotPassword, (route) => false);
+        } else {
+          AppUtils.ErrorDialog(
+            context,
+            value['error'] ?? "",
+            'User not found',
+            'Close',
+            Icon(
+              Icons.error_rounded,
+              color: Color.fromARGB(255, 213, 10, 27),
+              size: 30,
+            ),
+          );
+        }
       } else {
-           await saveToken(value['data']['accessTken'] ?? "");
+        await saveToken(value['data']['accessTken'] ?? "");
         AppUtils.ErrorDialog(
           context,
           "Sent",

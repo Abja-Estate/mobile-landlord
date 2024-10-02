@@ -362,6 +362,7 @@ class CustomInput3 extends StatelessWidget {
   final String? type;
   final String? value;
   final Widget? suffixIcon;
+    final Widget? prefixIcon;
   final bool? enabled;
   final bool? obsecure;
   final void Function(String?)? onSaved;
@@ -376,6 +377,7 @@ class CustomInput3 extends StatelessWidget {
       this.description,
       this.value,
       this.suffixIcon,
+       this.prefixIcon,
       this.enabled,
       this.obsecure = false,
       required this.onSaved,
@@ -416,6 +418,7 @@ class CustomInput3 extends StatelessWidget {
             borderSide: BorderSide(width: 0.5, color: Pallete.primaryColor)),
         labelText: label,
         suffixIcon: suffixIcon,
+        prefixIcon: prefixIcon,
         //errorMaxLines: 1,
         errorText: error,
         hintText: hint,

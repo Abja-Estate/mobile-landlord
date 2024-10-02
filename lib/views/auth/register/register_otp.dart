@@ -38,7 +38,7 @@ class _RegisterOTPScreenState extends State<RegisterOTPScreen> {
   Timer? _timer;
   Duration timeDuration = const Duration();
   startTimer() {
-    Duration _duration = const Duration(minutes: 3);
+    Duration _duration = const Duration(minutes: 2);
     timeOver = false;
     setState(() {});
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -173,12 +173,14 @@ class _RegisterOTPScreenState extends State<RegisterOTPScreen> {
                     children: [
                         Column(
                         children: [
-                          isCountdownCompleted? InkWell(
+                          isCountdownCompleted? GestureDetector(
                             onTap: () {
+                        
+                                setState(() {
+                                          isCountdownCompleted = false;
+                                });
                                startTimer();
                               RetryOTPUtil.retry(context);
-                              
-                               
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

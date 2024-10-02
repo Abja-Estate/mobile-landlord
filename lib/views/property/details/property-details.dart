@@ -3,13 +3,16 @@ import 'package:abjalandlord/constants/app_fonts.dart';
 import 'package:abjalandlord/constants/app_images.dart';
 import 'package:abjalandlord/constants/app_routes.dart';
 import 'package:abjalandlord/constants/resources.dart';
+import 'package:abjalandlord/provider/property_provider.dart';
 import 'package:abjalandlord/views/property/details/widgets/full_property.dart';
 import 'package:abjalandlord/views/property/details/widgets/unit_content.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../network/property.dart';
+import '../../../provider/request_provider.dart';
 import '../../../utils/backpressed.dart';
 import '../../navbar/nav.dart';
 import '../property.dart';
@@ -34,19 +37,6 @@ class _PropertyDetailsState extends State<PropertyDetails> {
   }
 
   int currentIndexs = 0;
-  List<Map> service = [
-    {
-      'icon': AppImages.cleaner,
-      'text': '2nd Floor- Back',
-      'text2': "Mr. Eric is in need of house cleaning."
-    },
-    {
-      'icon': AppImages.movers,
-      'color': Color(0xFFFFE4E9),
-      'text': '1st Floor- Front',
-      'text2': "Miss Susan is in need of  home movers into their apartment."
-    },
-  ];
 
   String formatDate(DateTime dateTime) {
     return DateFormat('dd MMMM, y').format(dateTime);
@@ -56,7 +46,8 @@ class _PropertyDetailsState extends State<PropertyDetails> {
   var property = {};
   int unitIndex = -1;
   String propID = "";
-  bool isUnitAvaialble = false;
+  List allRequest = [];
+  bool isUnitAvailable = false;
   List propertyUnits = [];
   getProperties() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -96,6 +87,8 @@ class _PropertyDetailsState extends State<PropertyDetails> {
         _currentPage = (_scrollController.offset / 100).round();
       });
     });
+    Provider.of<RequestProvider>(context, listen: false).getAllRequest();
+    Provider.of<PropertyProvider>(context, listen: false).getAllProperties();
     super.initState();
   }
 
@@ -133,14 +126,14 @@ class _PropertyDetailsState extends State<PropertyDetails> {
     final dataFromRoute = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
     propID = dataFromRoute["data"];
-
+    allRequest = dataFromRoute["requests"];
+    print(allRequest);
     final _getSize = MediaQuery.of(context).size;
     return WillPopScope(
-      onWillPop: () => onBackPressed(context),
+      onWillPop: () => onBackPressed(context, const Property(), 2),
       child: Scaffold(
         body: SafeArea(
-          child: 
-          SingleChildScrollView(
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
@@ -154,7 +147,7 @@ class _PropertyDetailsState extends State<PropertyDetails> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => NavBar(
-                                    initialScreen: Property(), initialTab: 2)),
+                                    initialScreen: Property(), initialTab: 1)),
                             (route) => false,
                           );
                         },
@@ -173,245 +166,16 @@ class _PropertyDetailsState extends State<PropertyDetails> {
                   !isLoadingProperty
                       ? Column(
                           children: [
-                            Stack(
-                              children: [
-                                SizedBox(
-                                  height: _getSize.height * 0.3,
-                                  width: _getSize.width,
-                                  child: ListView.builder(
-                                    physics: const NeverScrollableScrollPhysics(
-                                        parent: BouncingScrollPhysics()),
-                                    controller: _scrollController,
-                                    scrollDirection: Axis.horizontal,
-
-                                    itemCount: imgList
-                                        .length, // Change this based on your actual item count
-                                    itemBuilder: (context, index) {
-                                      // Replace this with your actual ListView item
-                                      return Padding(
-                                        padding: const EdgeInsets.all(2.0),
-                                        child: ClipRRect(
-                                          // Clip the image to match the border radius
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          child: Image.network(
-                                              height: _getSize.height * 0.25,
-                                              width: _getSize.width * 0.92,
-                                              imgList[index] != null
-                                                  ? imgList[index]
-                                                  : imgHolder,
-                                              fit: BoxFit.fill),
-                                        ),
-                                      );
-                                    },
+                          
+                                FullPropertyContent(
+                                    getSize: _getSize,
+                                    property: property,
+                                    propertyUnits: propertyUnits,
+                                    unitCount: unitIndex,
+                                    request: allRequest,
                                   ),
-                                ),
-                                property['structure'] != "Standalone"
-                                    ? Positioned(
-                                        left: _getSize.width * 0.08,
-                                        bottom: _getSize.height * 0.24,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: const Color.fromARGB(
-                                                  137, 246, 249, 245),
-                                              boxShadow: const [
-                                                BoxShadow(
-                                                  color: Color.fromARGB(
-                                                      113, 246, 249, 245),
-                                                  blurRadius: 11,
-                                                  spreadRadius: 2,
-                                                  offset: Offset(0, 5),
-                                                )
-                                              ],
-                                              border: Border.all(
-                                                  width: 0.3,
-                                                  color: Pallete.fade),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(5))),
-                                          child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 8.0,
-                                                  horizontal:
-                                                      _getSize.height * 0.018),
-                                              child: !isUnitAvaialble
-                                                  ? Row(
-                                                      children: [
-                                                        Text(
-                                                          property['unitData']
-                                                              .length
-                                                              .toString(),
-                                                          style: AppFonts.body1
-                                                              .copyWith(
-                                                            color: Pallete
-                                                                .primaryColor,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: _getSize
-                                                                    .height *
-                                                                0.018,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                            width:
-                                                                _getSize.width *
-                                                                    0.01),
-                                                        Text("Unit",
-                                                            style: AppFonts.body1.copyWith(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                color: Pallete
-                                                                    .primaryColor,
-                                                                fontSize: _getSize
-                                                                        .height *
-                                                                    0.018))
-                                                      ],
-                                                    )
-                                                  : Column(
-                                                      children: [
-                                                        !propertyUnits[
-                                                                    unitIndex]
-                                                                ['isTaken']
-                                                            ? Text(
-                                                                "Available",
-                                                                style: AppFonts
-                                                                    .smallWhiteBold
-                                                                    .copyWith(
-                                                                        color: Pallete
-                                                                            .primaryColor),
-                                                              )
-                                                            : Text(
-                                                                "Taken",
-                                                                style: AppFonts
-                                                                    .smallWhiteBold
-                                                                    .copyWith(
-                                                                        color: Colors
-                                                                            .red),
-                                                              ),
-                                                      ],
-                                                    )),
-                                        ),
-                                      )
-                                    : SizedBox(),
-                                property['structure'] != "Standalone"
-                                    ? Positioned(
-                                        bottom: 40, // adjust position as needed
-                                        left: 0, right: 0,
-                                        child: _buildDotsIndicator(),
-                                      )
-                                    : Text(''),
-                                property['structure'] != "Standalone"
-                                    ? Positioned(
-                                        top: 130, // adjust position as needed
-                                        left: 30,
-                                        child: SizedBox(
-                                          width: _getSize.width * 0.8,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              ClipOval(
-                                                child: Container(
-                                                  width: _getSize.width * 0.08,
-                                                  height:
-                                                      _getSize.height * 0.037,
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 0.2,
-                                                        color: Pallete.fade),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            2),
-                                                    color: Colors.white,
-                                                  ),
-                                                  child: IconButton(
-                                                    icon: const Icon(
-                                                      Icons.arrow_back,
-                                                      size: 16,
-                                                    ),
-                                                    onPressed: () {
-                                                      print(unitIndex);
-                                                      scrollToPreviousItem();
-                                                      if (unitIndex == 0) {
-                                                        unitIndex--;
-                                                        print(unitIndex);
-                                                        setState(() {
-                                                          isUnitAvaialble =
-                                                              false;
-                                                        });
-                                                      } else if (unitIndex ==
-                                                          propertyUnits.length -
-                                                              1) {
-                                                        unitIndex--;
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                              ClipOval(
-                                                child: Container(
-                                                  width: _getSize.width * 0.08,
-                                                  height:
-                                                      _getSize.height * 0.037,
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 0.2,
-                                                        color: Pallete.fade),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            2),
-                                                    color: Colors.white,
-                                                  ),
-                                                  child: IconButton(
-                                                    icon: const Icon(
-                                                      Icons.arrow_forward,
-                                                      size: 16,
-                                                    ),
-                                                    onPressed: () {
-                                                      scrollToNextItem();
-                                                      if (unitIndex !=
-                                                          propertyUnits.length -
-                                                              1) {
-                                                        unitIndex++;
-                                                        print(
-                                                            "prp:${propertyUnits.length}");
-                                                        print(unitIndex);
-
-                                                        print(propertyUnits
-                                                            .length);
-                                                        print(unitIndex);
-
-                                                        isUnitAvaialble = true;
-
-                                                        setState(() {});
-                                                      } else {}
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    : Text(''),
-                              ],
-                            ),
-                            !isUnitAvaialble
-                                //Main property view
-                                ? FullPropertyContent(
-                                    getSize: _getSize,
-                                    property: property,
-                                    propertyUnits: propertyUnits,
-                                    unitCount: unitIndex,
-                                    service: service)
-                                //Individual unit view
-                                : UnitContent(
-                                    getSize: _getSize,
-                                    property: property,
-                                    propertyUnits: propertyUnits,
-                                    unitCount: unitIndex,
-                                  )
+                             
+                              
                           ],
                         )
                       : Container(

@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../constants/resources.dart';
+import '../utils/local_storage.dart';
 
 class AuthAPI {
   static Future OTPVerfication(email, token, otp) async {
+    var accessToken = await showToken();
     var response = await http.post(
       Uri.parse('$BaseURL/auth/landlord/verify_otp'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
+        'authorization': 'Bearer $accessToken'
       },
       body: jsonEncode(
           <String, String>{"email": email, "otp": otp, "token": token}),
@@ -29,12 +32,12 @@ class AuthAPI {
       "password": password,
       "confirmPassword": confirmPassword
     };
-    print(payload);
+
     var response = await http.post(
       Uri.parse('$BaseURL/auth/landlord/register'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
       },
       body: jsonEncode(payload),
     );
@@ -44,17 +47,14 @@ class AuthAPI {
   }
 
   static Future login(data, password) async {
-    print(data);
-    print(password);
     var response = await http.post(
       Uri.parse('$BaseURL/auth/landlord/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
       },
       body: jsonEncode(<String, String>{"email": data, "password": password}),
     );
-
     var parsedResponse = jsonDecode(response.body);
 
     return parsedResponse;
@@ -65,22 +65,24 @@ class AuthAPI {
       Uri.parse('$BaseURL/auth/landlord/forgot_password'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
       },
       body: jsonEncode(<String, String>{"email": email}),
     );
 
     var parsedResponse = jsonDecode(response.body);
-    print(parsedResponse);
+
     return parsedResponse;
   }
 
-  static Future resetPassword(id,  password, cpassword) async {
+  static Future resetPassword(id, password, cpassword) async {
+    var accessToken = await showToken();
     var response = await http.post(
       Uri.parse('$BaseURL/auth/landlord/reset_password'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
+        'authorization': 'Bearer $accessToken'
       },
       body: jsonEncode(<String, String>{
         "id": id,
@@ -91,22 +93,20 @@ class AuthAPI {
 
     var parsedResponse = jsonDecode(response.body);
 
-    print(parsedResponse);
-
     return parsedResponse;
   }
 
-  static Future selfie(email, token, selfie) async {
-    print(email);
-    print(token);
+  static Future selfie(selfie) async {
+    var email = await showEmail();
+    var accessToken = await showToken();
     var response = await http.put(
       Uri.parse('$BaseURL/auth/landlord/selfie'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
+        'authorization': 'Bearer $accessToken'
       },
-      body: jsonEncode(
-          <String, String>{"email": email, "token": token, "selfie": selfie}),
+      body: jsonEncode(<String, String>{"email": email, "selfie": selfie}),
     );
 
     var parsedResponse = jsonDecode(response.body);
@@ -115,12 +115,11 @@ class AuthAPI {
   }
 
   static Future refresh(email) async {
-    print(email);
     var response = await http.put(
       Uri.parse('$BaseURL/auth/landlord/refresh_token'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
       },
       body: jsonEncode(<String, String>{"email": email}),
     );
@@ -130,11 +129,13 @@ class AuthAPI {
 
   static Future updateData(email, phone, password, confirmPassword, name,
       surname, about, token) async {
+    var accessToken = await showToken();
     var response = await http.put(
       Uri.parse('$BaseURL/auth/landlord/update_landlord'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'authorization': APIKEY
+        'x-api-key': APIKEY,
+        'authorization': 'Bearer $accessToken'
       },
       body: jsonEncode(<String, String>{
         "email": email,

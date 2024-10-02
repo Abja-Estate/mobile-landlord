@@ -36,7 +36,6 @@ class ForgotPasswordUtil {
           );
         } else {
           //TO DO
-          await saveToken(value['data']['accessToken'].toString());
           await saveId(value['data']['_id']);
           await saveEmail(value['data']['email']);
 

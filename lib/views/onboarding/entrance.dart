@@ -25,7 +25,7 @@ class _EntranceState extends State<Entrance> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Image.asset(AppImages.entrance),
-                SizedBox(height: _getSize.height * 0.2),
+                SizedBox(height: _getSize.height * 0.1),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

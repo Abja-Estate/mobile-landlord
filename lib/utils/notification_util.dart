@@ -1,8 +1,10 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 
-notify(header,text) async {
- 
+import 'local_storage.dart';
 
+notify(header,text,status) async {
+
+  await saveWSSVerify(status);
     //show notification
     AwesomeNotifications().createNotification(
         content: NotificationContent(

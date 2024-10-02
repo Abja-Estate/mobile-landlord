@@ -4,66 +4,34 @@ import '../../../constants/app_fonts.dart';
 import '../../../constants/app_images.dart';
 
 class RentNotifications extends StatelessWidget {
-  const RentNotifications({super.key, required Size getSize})
+  const RentNotifications(
+      {super.key, required Size getSize, required this.services})
       : _getSize = getSize;
 
   final Size _getSize;
-
+  final List services;
   @override
   Widget build(BuildContext context) {
-    List<Map> services = [
-      {
-        'icon': AppImages.fumigator,
-        'color': Color(0xFFEADAFF),
-        'text': 'Rent Paid',
-        "date": "Today",
-        'text2':
-            "Agent Emmanuel has received rent payment from Miss Susan for June 2023.",
-        'data': [
-          {
-            'icon': AppImages.agent,
-            'color': Color(0xFFEADAFF),
-            'text': 'Rent Paid',
-            'text2':
-                "Agent Emmanuel has received rent payment from Miss Susan for June 2023."
-          },
-        ]
-      },
-      {
-        'color': Color(0xFFEADAFF),
-        'text': 'Rent Paid',
-        "date": "Yesterday",
-        'text2':
-            "Agent Emmanuel has received rent payment from Miss Susan for June 2023.",
-        'data': [
-          {
-            'icon': AppImages.agent,
-            'color': Color(0xFFEADAFF),
-            'text': ' Apartment 006 is due for rent payment -',
-            'text3': "agent!",
-            'text2':
-                " Agent Emmanuel has received rent payment from Miss Susan for June 2023."
-          },
-        ]
-      },
-      {
-        'icon': AppImages.house,
-        'color': Color(0xFFDAE7D9),
-        'text': '2nd Floor- Back',
-        "date": "Last Month",
-        'text2': "Mr. Eric is in need of house cleaning.",
-        "data": [
-          {
-            'icon': AppImages.agent,
-            'color': Color(0xFFEADAFF),
-            'text': '6 Apartments Available for Rent',
-            'text2':
-                "Agent Emmanuel has received rent payment from Miss Susan for June 2023."
-          },
-        ]
-      },
-    ];
-    return Padding(
+ return 
+ 
+   services.isEmpty?  Padding(
+      padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+      child: Container(
+        child: Center(
+          child: Column(
+            children: [
+              SizedBox(
+                height: _getSize.height * 0.15,
+              ),
+              Image.asset(AppImages.noNotification),
+              Text("You currently have no rentage notification")
+            ],
+          ),
+        ),
+      ),
+    ): 
+ 
+ Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 16),
       child: SizedBox(
           width: _getSize.width * 0.9,
@@ -104,7 +72,7 @@ class RentNotifications extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            services[index]['date'],
+                            services[index]['time'],
                             style: AppFonts.boldText.copyWith(
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
@@ -124,7 +92,7 @@ class RentNotifications extends StatelessWidget {
                                                 0.24 // For length < 4
                                             : _getSize.height *
                                                 0.24, // For length >= 4
-                            child: buildListItem(context,
+                            child: buildListItem(context,services[index]['type'],
                                 services[index]['data'], _getSize.width),
                           ),
                         ],
@@ -137,7 +105,7 @@ class RentNotifications extends StatelessWidget {
   }
 }
 
-Widget buildListItem(BuildContext context, List<Map<String, dynamic>> service,
+Widget buildListItem(BuildContext context,String type, List<Map<String, dynamic>> service,
     double getSizeWidth) {
   // Assuming AppFonts and Pallete are defined elsewhere in your project.
   return ListView.builder(
@@ -162,11 +130,10 @@ Widget buildListItem(BuildContext context, List<Map<String, dynamic>> service,
                   text: TextSpan(
                     style: DefaultTextStyle.of(context).style,
                     children: <TextSpan>[
-                      service[index]['text3'] != null
-                          ? TextSpan(
-                              text: service[index]['text3'],
+                      TextSpan(
+                              text:"New Tenant",
                               style: TextStyle(
-                                color: service[index]['text3'] != 'agent!'
+                                color: "Tenant Added" != 'paid'
                                     ? Colors.black
                                     : Color.fromARGB(255, 224, 10,
                                         10), // Replace with Pallete.black if defined
@@ -174,18 +141,9 @@ Widget buildListItem(BuildContext context, List<Map<String, dynamic>> service,
                                 fontWeight: FontWeight.bold,
                               ),
                             )
-                          : TextSpan(
-                              text: '',
-                              style: TextStyle(
-                                color: Colors
-                                    .black, // Replace with Pallete.black if defined
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                      service[index]['text3'] != null
-                          ? TextSpan(
-                              text: ' - ',
+                          ,
+                       TextSpan(
+                            text: ' -${service[index]['name']} ${service[index]['surname']}',
                               style: TextStyle(
                                 color: Colors
                                     .black, // Replace with Pallete.black if defined
@@ -193,17 +151,9 @@ Widget buildListItem(BuildContext context, List<Map<String, dynamic>> service,
                                 fontWeight: FontWeight.bold,
                               ),
                             )
-                          : TextSpan(
-                              text: '',
-                              style: TextStyle(
-                                color: Colors
-                                    .black, // Replace with Pallete.black if defined
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                         ,
                       TextSpan(
-                        text: '${service[index]['text']} ',
+                        text: ' has been added to',
                         style: TextStyle(
                           color: Colors
                               .black, // Replace with Pallete.black if defined
@@ -212,7 +162,7 @@ Widget buildListItem(BuildContext context, List<Map<String, dynamic>> service,
                         ),
                       ),
                       TextSpan(
-                        text: ' - ${service[index]['text2']}',
+                        text: ' unit-${service[index]['unitID']}',
                         style: TextStyle(
                           color: Colors
                               .grey, // Replace with Pallete.fade if defined

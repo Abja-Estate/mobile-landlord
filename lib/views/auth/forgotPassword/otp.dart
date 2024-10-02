@@ -33,7 +33,7 @@ class _ResetOTPScreenState extends State<ResetOTPScreen> {
   Timer? _timer;
   Duration timeDuration = const Duration();
   startTimer() {
-    Duration _duration = const Duration(minutes: 3);
+    Duration _duration = const Duration(minutes: 2);
     timeOver = false;
     setState(() {});
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -50,10 +50,13 @@ class _ResetOTPScreenState extends State<ResetOTPScreen> {
     });
   }
 
+
+    bool isCountdownCompleted = false;
   void onTimerComplete() {
-    // Function to handle logic when timer completes
-    timeOver = true;
-    setState(() {});
+    setState(() {
+      isCountdownCompleted = true;
+    });
+
   }
 
   @override
@@ -170,9 +173,12 @@ class _ResetOTPScreenState extends State<ResetOTPScreen> {
                     children: [
                       Column(
                         children: [
-                          timeOver
+                          isCountdownCompleted
                               ? GestureDetector(
                                   onTap: () {
+                                        setState(() {
+                                          isCountdownCompleted = false;
+                                });
                                     startTimer();
                                     RetryOTPUtil.retry(context);
                                   },
@@ -193,7 +199,7 @@ class _ResetOTPScreenState extends State<ResetOTPScreen> {
                                     ],
                                   ),
                                 )
-                              : SizedBox(),
+                              : const SizedBox(),
                           SizedBox(
                             height: _getSize.height * 0.005,
                           ),

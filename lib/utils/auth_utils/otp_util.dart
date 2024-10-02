@@ -20,21 +20,26 @@ class RegisterOTPUtil {
         .registerOTP(email.toString(), token.toString(), resetData)
         .then((value) async {
       Navigator.of(context).pop();
-      print(value);
+
       if (value['statusCode'] != 200) {
-        AppUtils.ErrorDialog(
-          context,
-          'Error',
-          value['error'].toString(),
-          'Close',
-          Icon(
-            Icons.error_rounded,
-            color: Color.fromARGB(255, 213, 10, 10),
-            size: 30,
-          ),
-        );
+        if (value["error"] == "Expired Bearer token") {
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(AppRoutes.forgotPassword, (route) => false);
+        } else {
+          AppUtils.ErrorDialog(
+            context,
+            'Error',
+            value['error'].toString(),
+            'Close',
+            const Icon(
+              Icons.error_rounded,
+              color: Color.fromARGB(255, 213, 10, 10),
+              size: 30,
+            ),
+          );
+        }
       } else {
-          saveOnce(2);
+        saveOnce(2);
         Navigator.of(context).popAndPushNamed(AppRoutes.loginScreen);
       }
     });

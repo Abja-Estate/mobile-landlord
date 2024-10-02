@@ -26,6 +26,7 @@ import '../views/onboarding/onboarding.dart';
 import '../views/property/add/add-unit.dart';
 import '../views/request/create_request/create_request.dart';
 import '../views/request/create_request/request_details.dart';
+import '../views/request/view_request/view_request.dart';
 import '../views/tenant/tenants.dart';
 
 class AppRoutes {
@@ -43,7 +44,6 @@ class AppRoutes {
   static const webviewScreen = '/webview';
   static const checkOut = '/checkOut';
 
-
   static const loginScreen = '/loginScreen';
   static const forgotPassword = '/forgotPassword';
   static const selectTest = '/selectTest';
@@ -55,16 +55,17 @@ class AppRoutes {
   static const loadHome = '/loadHome';
   static const privacy = '/privacy';
   static const terms = '/terms';
-    static const requestDetails = './requestDetails';
+  static const requestDetails = './requestDetails';
   static const createRequest = './createRequest';
-   static const requestScreen = './requestScreen';
+  static const requestScreen = './requestScreen';
   static const registerOTPScreen = '/registerOTPScreen';
   static const changePassword = '/changePassword';
   static const registerScreen = '/registerScreen';
   static const resetOTPScreen = '/resetOTPScreen';
   static const addProperty = '/addProperty';
   static const addUnit = '/addUnit';
-    static const addMoreUnit = '/addMoreUnit';
+  static const viewRequest = '/viewRequest';
+  static const addMoreUnit = '/addMoreUnit';
   static const makeRequest = '/makeRequest';
   static const tenants = '/tenants';
   static const onboarding = '/onboarding';
@@ -73,11 +74,12 @@ class AppRoutes {
   static const settingsDetails = '/settingsDetails';
   static Map<String, WidgetBuilder> routes() {
     return <String, WidgetBuilder>{
-          AppRoutes.createRequest: (context) => CreateRequest(),
-           AppRoutes.requestScreen: (context) => RequestScreen(),
-        AppRoutes.requestDetails: (context) => RequestDetails(),
+      AppRoutes.createRequest: (context) => CreateRequest(),
+         AppRoutes.viewRequest: ((context) => ViewRequest()),
+      AppRoutes.requestScreen: (context) => RequestScreen(),
+      AppRoutes.requestDetails: (context) => RequestDetails(),
       AppRoutes.welcomeScreen: ((context) => Welcome()),
-      AppRoutes.onboarding: (context) =>  OnboardingScreen(),
+      AppRoutes.onboarding: (context) => OnboardingScreen(),
       AppRoutes.forgotPassword: ((context) => PasswordResetScreen()),
       AppRoutes.settings: ((context) => Settings()),
       AppRoutes.settingsDetails: ((context) => SettingsContent()),
@@ -94,9 +96,8 @@ class AppRoutes {
       AppRoutes.package: (context) => Package(),
       AppRoutes.profile: (context) => Profile(),
       AppRoutes.dashboardScreen: (context) => Dashboard(),
-  
       AppRoutes.addTenant: (context) => AddTenant(),
-       AppRoutes.addMoreUnit: (context) => AddMoreUnit(),
+      AppRoutes.addMoreUnit: (context) => AddMoreUnit(),
       AppRoutes.tenants: (context) => Tenants(),
       AppRoutes.tenantsProfile: (context) => TenantProfile(),
       AppRoutes.propDetails: (context) => PropertyDetails(),

@@ -33,13 +33,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       "desc":
           "Request reliable home service professionals for maintenance and repairs.",
       "img": AppImages.third
-    },
-    {
-      "title": "Subscription Packages",
-      "desc":
-          "Choose the plan that fits your needs and unlock powerful features.",
-      "img": AppImages.fourth
-    },
+    }
   ];
 
   @override
@@ -64,31 +58,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(""),
-                        GestureDetector(
-                                    onTap: () {
-                                      saveOnce(1);
-                                      Navigator.of(context)
-                                          .pushNamed(AppRoutes.welcomeScreen);
-                                    },
-                                    child: Text(
-                                      'Skip >>>',
-                                      style: AppFonts.bodyText.copyWith(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Pallete.secondaryColor),
-                                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(""),
+                      GestureDetector(
+                                  onTap: () {
+                                    saveOnce(1);
+                                    Navigator.of(context)
+                                        .pushNamed(AppRoutes.welcomeScreen);
+                                  },
+                                  child: Text(
+                                    'Skip >>>',
+                                    style: AppFonts.bodyText.copyWith(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Pallete.secondaryColor),
                                   ),
-                      ],
-                    ),
+                                ),
+                    ],
                   ),
               SizedBox(
                 height: _getSize.height * 0.8,
+                width: _getSize.width,
                 child: PageView.builder(
                     scrollDirection: Axis.horizontal,
                     controller: _controller,
@@ -100,52 +92,55 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     itemCount: _slidiingItem.length,
                     itemBuilder: (context, index) {
                       // contents of slider
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              height: _getSize.height * 0.01,
-                            ),
-                        
-                            SizedBox(
-                              height: _getSize.height * 0.05,
-                            ),
-                            SizedBox(
-                              width: _getSize.width * 0.9,
-                              child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child:
-                                      Image.asset(_slidiingItem[index]['img'])),
-                            ),
-                            SizedBox(
-                              height: _getSize.height * 0.06,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _slidiingItem[index]['title'],
-                                  style: AppFonts.boldText.copyWith(
-                                      fontSize: _getSize.width * 0.055,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF47893F)),
-                                ),
-                                SizedBox(
-                                  height: _getSize.height * 0.01,
-                                ),
-                                Text(
-                                  _slidiingItem[index]['desc'],
-                                  style: AppFonts.bodyText.copyWith(
-                                      fontSize: _getSize.width * 0.035,
-                                      fontWeight: FontWeight.w600,
-                                      color: Pallete.text),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                       
+                          SizedBox(
+                            height: _getSize.height * 0.05,
+                          ),
+                          SizedBox(
+                            width: _getSize.width ,
+                            height: _getSize.height*0.55,
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child:
+                                    Image.asset(_slidiingItem[index]['img'])),
+                          ),
+                          SizedBox(
+                            height: _getSize.height * 0.05,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _slidiingItem[index]['title'],
+                                    style: AppFonts.boldText.copyWith(
+                                        fontSize: _getSize.width * 0.035,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF47893F)),
+                                  ),
+                                  SizedBox(
+                                    height: _getSize.height * 0.01,
+                                  ),
+                                  SizedBox(
+                                    width: _getSize.width*0.8,
+                                    child: Text(
+                                      _slidiingItem[index]['desc'],
+                                      style: AppFonts.bodyText.copyWith(
+                                          fontSize: _getSize.width * 0.025,
+                                          fontWeight: FontWeight.w600,
+                                          color: Pallete.text),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       );
                     }),
               ),

@@ -2,28 +2,24 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-
-import 'package:abjalandlord/components/buttons.dart';
-import 'package:abjalandlord/components/input_field.dart';
 import 'package:abjalandlord/constants/app_colors.dart';
 import 'package:abjalandlord/constants/app_fonts.dart';
-import 'package:abjalandlord/constants/app_routes.dart';
 import 'package:abjalandlord/constants/resources.dart';
 import 'package:abjalandlord/utils/app_utils.dart';
 import 'package:abjalandlord/utils/property_util/add_unit_utils.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart' as imgpika;
+import '../../../components/input_field.dart';
 import '../../../constants/app_images.dart';
 import '../../../network/property.dart';
 import '../../../utils/local_storage.dart';
-import '../../../utils/property_util/add_property_utils.dart';
 import '../../navbar/nav.dart';
 import '../../tenant/tenant_profile.dart';
 import '../property.dart';
 import 'add-property.dart';
+import 'add-unit.dart';
 
 class AddMoreUnit extends StatefulWidget {
   const AddMoreUnit({Key? key}) : super(key: key);
@@ -58,27 +54,29 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
   bool isuploaded = false;
   upload(selfie) async {
     var photo = "";
-    isFetchingImage = true;
-    setState(() {});
+
     var res = await PropertyAPI.uploadImage(selfie);
     setState(() {
       photo = res['data']['selfie'];
-
       isFetchingImage = false;
-      isuploaded = true;
     });
-    print(photo);
+
     return photo;
   }
+
+  var newUnitsCount = 0;
 
   var pID = "";
   var unitID = "";
   List<UnitItem> moreUnits = [];
-
+  var mcLength = 0.235;
+  var txLength = 0.235;
+  var extraLength = 0.235;
   void addUnit() {
     setState(() {
-      moreUnits
-          .add(UnitItem(false, false, "", ",", "", "", "", imgHolder, "", ""));
+      newUnitsCount++;
+      moreUnits.add(UnitItem(false, false, "", ",", "", "", "", imgHolder, "",
+          "", false, false, "", "", "", ""));
     });
   }
 
@@ -100,25 +98,75 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
         "power": item.isPowerChecked,
         "store": item.store,
         "isTaken": false,
-         "isInUse": false,
-        "monthlyCost": "",
-        "extraWages": "",
-        "tax": "",
-        "photo": item.photo
+        "isInUse": false,
+        "monthlyCost": item.mc,
+        "extraWages": item.extra,
+        "tax": item.tax,
+        "photo": item.photo,
+        "nick": item.nick
       };
     }).toList();
-    // Now dataList contains all items as map objects
-    // You can use this dataList as needed
-    _propertyData['unitData'] = dataList;
-    _propertyData["landlordID"] = landlordid;
-    _propertyData["propertyID"] = _propertyData["propertyID"];
-    AddUnitUtil.add(context, _propertyData);
+
+    bool hasEmptyData = dataList.any((data) =>
+        data["bedroom"] == null ||
+        data["bedroom"].toString().isEmpty ||
+        data["bathroom"] == null ||
+        data["bathroom"].toString().isEmpty ||
+        data["lightMeter"] == null ||
+        data["lightMeter"].toString().isEmpty ||
+        data["waterMeter"] == null ||
+        data["waterMeter"].toString().isEmpty ||
+        data["toilet"] == null ||
+        data["toilet"].toString().isEmpty ||
+        data["wifi"] == null ||
+        data["wifi"].toString().isEmpty ||
+        data["power"] == null ||
+        data["power"].toString().isEmpty ||
+        data["store"] == null ||
+        data["store"].toString().isEmpty ||
+        data["nick"] == null ||
+        data["nick"].toString().isEmpty ||
+        data["photo"] == null ||
+        data["photo"].toString().isEmpty ||
+        data["tax"] == null ||
+        data["tax"].toString().isEmpty ||
+        data["monthlyCost"] == null ||
+        data["monthlyCost"].toString().isEmpty ||
+        data["extraWages"] == null ||
+        data["extraWages"].toString().isEmpty);
+
+    print(dataList);
+    if (hasEmptyData) {
+      // Handle case where there's empty data
+      // For example, show an error message or prevent further action
+      AppUtils.ErrorDialog(
+        context,
+        'Some fields are empty',
+        "You need to fill all the fields",
+        'Close',
+        Icon(
+          Icons.error_rounded,
+          color: Color.fromARGB(255, 213, 10, 10),
+          size: 30,
+        ),
+      );
+    } else {
+      // Proceed with adding the property data
+      // Now dataList contains all items as map objects
+      // You can use this dataList as needed
+      _propertyData['unitData'] = dataList;
+      _propertyData["landlordID"] = landlordid;
+      _propertyData["propertyID"] = _propertyData["propertyID"];
+      AddUnitUtil.add(context, _propertyData);
+    }
   }
 
   @override
   void initState() {
     _propertyData['unitData'] = [];
-
+    mcLength;
+    txLength;
+    extraLength;
     getData();
     addUnit();
     super.initState();
@@ -141,12 +189,12 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
     return WillPopScope(
       onWillPop: () async {
         Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            NavBar(initialScreen: Property(),initialTab: 2)),
-                                    (route) => false,
-                                  );
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  NavBar(initialScreen: const Property(), initialTab: 2)),
+          (route) => false,
+        );
         return true;
       },
       child: Scaffold(
@@ -187,15 +235,18 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) {
                           String userAccessCodeString =
-                              generateRandomString(5, "b");
-                          moreUnits[index].id = "$pid-00$userAccessCodeString";
+                              generateRandomString(3, "b");
+                          moreUnits[index].id =
+                              "${moreUnits[index].nick}-$userAccessCodeString";
+                          newUnitsCount = _propertyData["unitData"].length + 1;
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 32.0),
                             child: Column(children: [
                               ProfileData(
                                 getSize: _getSize,
                                 header: "",
-                                content: "Unit ${index + 1} Information.",
+                                content:
+                                    "Unit ${newUnitsCount + index} Information.",
                               ),
                               SizedBox(
                                 height: _getSize.height * 0.003,
@@ -229,6 +280,20 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                               SizedBox(
                                 height: _getSize.height * 0.03,
                               ),
+                              CustomInput3(
+                                label: "Unit name",
+                                onChanged: (p) {
+                                  moreUnits[index].nick = p!;
+                                  setState(() {});
+                                },
+                                onSaved: (p) {
+                                  moreUnits[index].nick = p!;
+                                },
+                                hint: "name: Quater01",
+                              ),
+                              SizedBox(
+                                height: _getSize.height * 0.03,
+                              ),
                               NewWidget(
                                 data: (value) {
                                   moreUnits[index].bedroom = value!;
@@ -237,7 +302,9 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                                   // moreUnits[index].id =
                                   //     "$pID-00$userAccessCodeString";
                                 },
-                                data2: (value) {},
+                                data2: (value) {
+                                  moreUnits[index].store = value!;
+                                },
                                 getSize: _getSize,
                                 label: "Bedroom",
                                 hint: "ex: 3 Bedrooms",
@@ -386,27 +453,53 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Pallete.fade),
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            color: Color(0xFFDAE7D9)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 1),
-                                          child: Center(
-                                              child: Text(
-                                            "\$/yr",
-                                            style: AppFonts.bodyText.copyWith(
-                                                fontSize: 12,
-                                                color: Pallete.primaryColor,
-                                                fontWeight: FontWeight.w600),
-                                          )),
+                                     SizedBox(
+                                        height: _getSize.height * 0.04,
+                                        width: _getSize.width * mcLength,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            errorMaxLines: 1,
+                                            filled: true,
+                                            fillColor: Color(0xFFDAE7D9),
+                                            hintStyle: AppFonts.hintStyle,
+                                            errorStyle: AppFonts.errorStyle,
+                                            prefixText: "\$",
+                                            suffixText: "/ month",
+                                            suffixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            prefixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            border: InputBorder.none,
+                                          ),
+                                          onSaved: (p) {
+                                            moreUnits[index].mc = p!;
+                                            setState(() {});
+                                          },
+                                          onChanged: (p) {
+                                            moreUnits[index].mc = p;
+                                            if (p.length <= 3) {
+                                              setState(() {
+                                                mcLength = 0.235;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                mcLength = 0.29;
+                                              });
+                                            }
+                                          },
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                   SizedBox(
@@ -436,28 +529,53 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        width: 84,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Pallete.fade),
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            color: Color(0xFFDAE7D9)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 1),
-                                          child: Center(
-                                              child: Text(
-                                            "\$/yr",
-                                            style: AppFonts.bodyText.copyWith(
-                                                fontSize: 12,
-                                                color: Pallete.primaryColor,
-                                                fontWeight: FontWeight.w600),
-                                          )),
+                                     SizedBox(
+                                        height: _getSize.height * 0.04,
+                                        width: _getSize.width * extraLength,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            errorMaxLines: 1,
+                                            filled: true,
+                                            fillColor: Color(0xFFDAE7D9),
+                                            hintStyle: AppFonts.hintStyle,
+                                            errorStyle: AppFonts.errorStyle,
+                                            prefixText: "\$",
+                                            suffixText: "/ month",
+                                            suffixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            prefixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            border: InputBorder.none,
+                                          ),
+                                          onSaved: (p) {
+                                            moreUnits[index].extra = p!;
+                                            setState(() {});
+                                          },
+                                          onChanged: (p) {
+                                            moreUnits[index].extra = p;
+                                            if (p.length <= 3) {
+                                              setState(() {
+                                                extraLength = 0.235;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                extraLength = 0.29;
+                                              });
+                                            }
+                                          },
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                   SizedBox(
@@ -487,28 +605,53 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        width: 84,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Pallete.fade),
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            color: Color(0xFFDAE7D9)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 1),
-                                          child: Center(
-                                              child: Text(
-                                            "\$/yr",
-                                            style: AppFonts.bodyText.copyWith(
-                                                fontSize: 12,
-                                                color: Pallete.primaryColor,
-                                                fontWeight: FontWeight.w600),
-                                          )),
+                                     SizedBox(
+                                        height: _getSize.height * 0.04,
+                                        width: _getSize.width * txLength,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            errorMaxLines: 1,
+                                            filled: true,
+                                            fillColor: const Color(0xFFDAE7D9),
+                                            hintStyle: AppFonts.hintStyle,
+                                            errorStyle: AppFonts.errorStyle,
+                                            prefixText: "\$",
+                                            suffixText: "/ month",
+                                            suffixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            prefixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            border: InputBorder.none,
+                                          ),
+                                          onSaved: (p) {
+                                            moreUnits[index].tax = p!;
+                                            setState(() {});
+                                          },
+                                          onChanged: (p) {
+                                            moreUnits[index].tax = p;
+                                            if (p.length <= 3) {
+                                              setState(() {
+                                                txLength = 0.235;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                txLength = 0.29;
+                                              });
+                                            }
+                                          },
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -523,15 +666,32 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                                   final img = await _picker.pickImage(
                                       source: imgpika.ImageSource.gallery);
                                   if (img != null) {
+                                    print(isFetchingImage);
+                                    isFetchingImage = true;
+                                    moreUnits[index].isFetchedImage =
+                                        isFetchingImage;
+                                    setState(() {});
+                                    print(isFetchingImage);
                                     File imageFile = File(img.path);
                                     Uint8List imageBytes =
                                         await imageFile.readAsBytes();
                                     String base64String =
                                         base64Encode(imageBytes);
-                                    print(base64String);
-                                    moreUnits[index].photo =
+
+                                    String uploadedPhoto =
                                         await upload(base64String);
-                                    setState(() {});
+                                    print(uploadedPhoto);
+
+                                    if (uploadedPhoto != "") {
+                                      setState(() {
+                                        moreUnits[index].photo = uploadedPhoto;
+                                        moreUnits[index].isuploaded = true;
+                                        moreUnits[index].isFetchedImage =
+                                            isFetchingImage;
+
+                                        print(moreUnits[index].isFetchedImage);
+                                      });
+                                    } else {}
                                   }
                                 },
                                 child: DottedBorder(
@@ -548,12 +708,12 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                                       height: _getSize.height * 0.05,
                                       width: _getSize.width * 0.6,
                                       color: Color(0xFFDAE7D9),
-                                      child: !isFetchingImage
+                                      child: !moreUnits[index].isFetchedImage
                                           ? Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                !isuploaded
+                                                !moreUnits[index].isuploaded
                                                     ? Icon(
                                                         Icons.download,
                                                         color: Pallete
@@ -565,7 +725,7 @@ class _AddMoreUnitState extends State<AddMoreUnit> {
                                                         color:
                                                             Pallete.whiteColor,
                                                       ),
-                                                !isuploaded
+                                                !moreUnits[index].isuploaded
                                                     ? Text(
                                                         "Upload Property Image")
                                                     : Text("Uploaded")
@@ -692,22 +852,6 @@ class props extends StatelessWidget {
       ),
     );
   }
-}
-
-class UnitItem {
-  bool isPowerChecked;
-  bool isWifiChecked;
-  String light;
-  String water;
-  String toilet;
-  String bedroom;
-  String bathroom;
-  String photo;
-  String id;
-  String store;
-
-  UnitItem(this.isPowerChecked, this.isWifiChecked, this.light, this.bedroom,
-      this.bathroom, this.toilet, this.water, this.photo, this.id, this.store);
 }
 
 String generateRandomString(int length, String a) {

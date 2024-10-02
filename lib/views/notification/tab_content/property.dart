@@ -4,14 +4,15 @@ import '../../../constants/app_fonts.dart';
 import '../../../constants/app_images.dart';
 
 class PropertyNotifications extends StatelessWidget {
-  const PropertyNotifications({super.key, required Size getSize})
+  const PropertyNotifications(
+      {super.key, required Size getSize, required this.properties})
       : _getSize = getSize;
 
   final Size _getSize;
-
+  final List properties;
   @override
   Widget build(BuildContext context) {
-    List<Map> services = [
+    List<Map> propertie = [
       {
         'color': Color(0xFFFCEADA),
         "date": "Today",
@@ -25,7 +26,7 @@ class PropertyNotifications extends StatelessWidget {
             'text2':
                 "Agent Emmanuel has received rent payment from Miss Susan for June 2023."
           },
-         {
+          {
             'icon': AppImages.agent,
             'color': Color(0xFFFCEADA),
             'text': 'New Successfully Added Tenant (Unit 005)',
@@ -34,15 +35,32 @@ class PropertyNotifications extends StatelessWidget {
           },
         ]
       },
-
     ];
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 16),
-      child: SizedBox(
+      child: 
+      
+      
+    properties.isEmpty?  Padding(
+      padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+      child: Container(
+        child: Center(
+          child: Column(
+            children: [
+              SizedBox(
+                height: _getSize.height * 0.15,
+              ),
+              Image.asset(AppImages.noNotification),
+              Text("You currently have no property notification")
+            ],
+          ),
+        ),
+      ),
+    ):  SizedBox(
           width: _getSize.width * 0.9,
           height: _getSize.height * 0.9,
           child: ListView.builder(
-              itemCount: services.length,
+              itemCount: properties.length,
               physics: BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) {
@@ -50,13 +68,13 @@ class PropertyNotifications extends StatelessWidget {
                   padding: const EdgeInsets.only(
                       top: 8.0, bottom: 8, right: 16, left: 16),
                   child: Container(
-                    height: services[index]['data'].length == 1
+                    height: properties[index]['data'].length == 1
                         ? _getSize.height * 0.19 // For length < 2
-                        : services[index]['data'].length == 2
+                        : properties[index]['data'].length == 2
                             ? _getSize.height * 0.29 // For length < 2
-                            : services[index]['data'].length == 3
+                            : properties[index]['data'].length == 3
                                 ? _getSize.height * 0.24 // For length < 2
-                                : services[index]['data'].length == 4
+                                : properties[index]['data'].length == 4
                                     ? _getSize.height * 0.3
                                     : _getSize.height * 0.3,
                     width: _getSize.width,
@@ -77,7 +95,7 @@ class PropertyNotifications extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            services[index]['date'],
+                           properties[index]['time'],
                             style: AppFonts.boldText.copyWith(
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
@@ -85,20 +103,20 @@ class PropertyNotifications extends StatelessWidget {
                             height: 4,
                           ),
                           SizedBox(
-                            height: services[index]['data'].length == 1
+                            height: properties[index]['data'].length == 1
                                 ? _getSize.height * 0.06 // For length < 2
-                                : services[index]['data'].length == 2
+                                : properties[index]['data'].length == 2
                                     ? _getSize.height * 0.15 // For length < 2
-                                    : services[index]['data'].length == 3
+                                    : properties[index]['data'].length == 3
                                         ? _getSize.height *
                                             0.17 // For length < 3
-                                        : services[index]['data'].length == 4
+                                        : properties[index]['data'].length == 4
                                             ? _getSize.height *
                                                 0.24 // For length < 4
                                             : _getSize.height *
                                                 0.24, // For length >= 4
                             child: buildListItem(context,
-                                services[index]['data'], _getSize.width),
+                                properties[index]['data'], _getSize.width),
                           ),
                         ],
                       ),
@@ -135,48 +153,9 @@ Widget buildListItem(BuildContext context, List<Map<String, dynamic>> service,
                   text: TextSpan(
                     style: DefaultTextStyle.of(context).style,
                     children: <TextSpan>[
-                      service[index]['text3'] != null
-                          ? TextSpan(
-                              text: service[index]['text3'],
-                              style: TextStyle(
-                                color: service[index]['text3'] != 'agent!'
-                                    ? Colors.black
-                                    : Color.fromARGB(255, 224, 10,
-                                        10), // Replace with Pallete.black if defined
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : TextSpan(
-                              text: '',
-                              style: TextStyle(
-                                color: Colors
-                                    .black, // Replace with Pallete.black if defined
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                      service[index]['text3'] != null
-                          ? TextSpan(
-                              text: ' - ',
-                              style: TextStyle(
-                                color: Colors
-                                    .black, // Replace with Pallete.black if defined
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : TextSpan(
-                              text: '',
-                              style: TextStyle(
-                                color: Colors
-                                    .black, // Replace with Pallete.black if defined
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                     
                       TextSpan(
-                        text: '${service[index]['text']} ',
+                        text: 'New Successfully Added Property',
                         style: TextStyle(
                           color: Colors
                               .black, // Replace with Pallete.black if defined
@@ -185,7 +164,7 @@ Widget buildListItem(BuildContext context, List<Map<String, dynamic>> service,
                         ),
                       ),
                       TextSpan(
-                        text: ' - ${service[index]['text2']}',
+                        text: ' - ${service[index]['name']}, ${service[index]['structure']} with ${service[index]['unit']} units located at ${service[index]['location']}',
                         style: TextStyle(
                           color: Colors
                               .grey, // Replace with Pallete.fade if defined

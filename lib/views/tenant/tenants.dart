@@ -43,22 +43,22 @@ class _TenantsState extends State<Tenants> {
   List tenants = [];
   var pid = '';
   getAllPropertiesTenants(propID) async {
-  
     isLoadingTenants = true;
     await Future.delayed(Duration(seconds: 1));
     var res = await PropertyAPI.getPropertyTenants(propID);
 
     List gotTenants = res['data'];
     print(gotTenants);
+    print("here");
     if (gotTenants.isNotEmpty) {
       setState(() {
-          pid = propID;
+        pid = propID;
         tenants = gotTenants;
         isLoadingTenants = false;
       });
     } else {
       setState(() {
-          pid = propID;
+        pid = propID;
         isLoadingTenants = false;
         tenants = [];
       });
@@ -101,6 +101,7 @@ class _TenantsState extends State<Tenants> {
   Widget build(BuildContext context) {
     final _getSize = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Color(0xFFF6F9F5),
       body: SafeArea(
           child: SingleChildScrollView(
         child: SizedBox(
@@ -114,12 +115,12 @@ class _TenantsState extends State<Tenants> {
                     GestureDetector(
                       onTap: () {
                         Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            NavBar(initialScreen: Property(),initialTab: 2)),
-                                    (route) => false,
-                                  );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NavBar(
+                                  initialScreen: Property(), initialTab: 2)),
+                          (route) => false,
+                        );
                       },
                       child: Image.asset(
                         AppImages.back,
@@ -162,7 +163,9 @@ class _TenantsState extends State<Tenants> {
                             color: Colors.white, fontWeight: FontWeight.bold),
                         tabs: buildTabs(),
                       ),
-                      Expanded(
+                      SizedBox(
+                                   width: _getSize.width,
+                                            height: _getSize.height * 0.86,
                         child: TabBarView(
                           children: propertyName.map((tabName) {
                             return !isLoadingTenants
@@ -172,7 +175,11 @@ class _TenantsState extends State<Tenants> {
                                         tenants: tenants,
                                         // Pass any additional data to TenantsContent if needed
                                       )
-                                    : Container(
+                                    : 
+                                    
+                                    
+                                    
+                                    Container(
                                         margin: EdgeInsets.only(bottom: 8),
                                         decoration: BoxDecoration(
                                             color: Color(0xFFF6F9F5),
@@ -185,16 +192,27 @@ class _TenantsState extends State<Tenants> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceAround,
                                             children: [
-                                              Image.asset(
-                                                AppImages.no_prop,
-                                                width: _getSize.width * 0.6,
+                                              Column(
+                                                children: [
+                                                  Image.asset(
+                                                    AppImages.noTenant,
+                                                    width: _getSize.width * 0.7,
+                                                  ),
+                                                  SizedBox(
+                                                    height:
+                                                        _getSize.height * 0.007,
+                                                  ),
+                                                  Text(
+                                                    "You currently have no tenants in this property",
+                                                    style: AppFonts.body1
+                                                        .copyWith(
+                                                            color: Pallete.text,
+                                                            fontSize: 14),
+                                                  ),
+                                                ],
                                               ),
                                               Column(
                                                 children: [
-                                                  Text(
-                                                    "You currently have no tenants in this property",
-                                                    style: AppFonts.body1,
-                                                  ),
                                                   SizedBox(
                                                     height:
                                                         _getSize.height * 0.01,
@@ -205,7 +223,7 @@ class _TenantsState extends State<Tenants> {
                                                           .pushNamed(
                                                         AppRoutes.propDetails,
                                                         arguments: {
-                                                          'data':pid,
+                                                          'data': pid,
                                                         },
                                                       );
                                                     },

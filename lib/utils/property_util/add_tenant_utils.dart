@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:abjalandlord/models/dashItem.dart';
 import 'package:abjalandlord/provider/property_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +11,7 @@ import '../../views/navbar/nav.dart';
 import '../../views/property/property.dart';
 import '../app_utils.dart';
 import '../local_storage.dart';
+import '../notification_util.dart';
 
 class AddTenantUtil {
   static Future<String> add(
@@ -34,7 +34,7 @@ class AddTenantUtil {
               width: 48,
             ),
             "Close",
-            AppRoutes.propDetails,
+            sroute: AppRoutes.propDetails,
             routeData: value['data']['propertyID']);
 
         Navigator.pushAndRemoveUntil(
@@ -44,7 +44,17 @@ class AddTenantUtil {
                   NavBar(initialScreen: const Dashboard(), initialTab: 0)),
           (route) => false,
         );
+
+        notify(
+            "New Successfully Added Tenant",
+            "You added ${tenantData['name']} ${tenantData['surname']} to a property with id- ${tenantData["propertyID"]}.",
+            true);
       } else {
+         if (value['statusCode'] == 403) {
+          if (value["error"] == "Expired Bearer token") {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                AppRoutes.loginScreen, (route) => false);
+          } else {
         AppUtils.showAlertDialog(
             context,
             'Oops, something isn\'t right!',
@@ -52,7 +62,7 @@ class AddTenantUtil {
             'Close',
             'Try again',
             () => Navigator.of(context).pop());
-      }
+      }}}
     });
 
     return result;

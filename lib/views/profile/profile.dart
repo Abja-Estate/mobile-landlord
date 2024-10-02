@@ -1,14 +1,20 @@
+import 'package:abjalandlord/provider/property_provider.dart';
+import 'package:abjalandlord/provider/request_provider.dart';
+import 'package:abjalandlord/provider/user_provider.dart';
 import 'package:abjalandlord/utils/local_storage.dart';
+import 'package:abjalandlord/views/dashboard/dashboard.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart' as imgpika;
 import 'package:image_stack/image_stack.dart';
+import 'package:provider/provider.dart';
 import '../../components/buttons.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_fonts.dart';
 import '../../constants/app_images.dart';
 import '../../constants/app_routes.dart';
+import '../request/time_formatter.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -18,35 +24,16 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  List<String> images = <String>[
-    "https://images.unsplash.com/photo-1458071103673-6a6e4c4a3413?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80",
-    "https://images.unsplash.com/photo-1518806118471-f28b20a1d79d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1470406852800-b97e5d92e2aa?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80",
-    "https://images.unsplash.com/photo-1473700216830-7e08d47f858e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80"
-  ];
   int _tabIndex = 0;
-  var name = '';
-  var surname = '';
-  var photo = 'https://picsum.photos/200';
-  var about =
-      "Hi, I’m Tony Ukachukwu. A landlord and property owner within Kampala and it’s districts. I offer premium and the best qualities of luxury living spaces  within affordable rent fees.";
-  imgpika.XFile? image; //this is the state variable
-  getPhoto() async {
-    photo = await showSelfie();
-    about = await showRef();
-    name = await showName();
-    surname = await showSurname();
-    setState(() {
-      photo;
-      name;
-      surname;
-      about;
-    });
-  }
 
+  imgpika.XFile? image; //this is the state variable
+  int tenantCount = 5;
+
+  String about = "";
   @override
   void initState() {
-    getPhoto();
+    Provider.of<UserProvider>(context, listen: false).initUserData();
+    Provider.of<PropertyProvider>(context, listen: false).allTenantSelfies();
     super.initState();
   }
 
@@ -56,8 +43,16 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       backgroundColor: Pallete.whiteColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
+        child: SingleChildScrollView(child:
+            Consumer3<UserProvider, PropertyProvider, RequestProvider>(builder:
+                (context, userProvider, propertyProvider, requestProvider,
+                    child) {
+          var totalProperty = propertyProvider.property.length;
+          var totalRequest = requestProvider.request.length;
+          var selfieUrls = propertyProvider.tenantSelfies;
+          print(selfieUrls);
+          var userData = userProvider.user;
+          return Column(
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -107,10 +102,10 @@ class _ProfileState extends State<Profile> {
                         padding: const EdgeInsets.all(2.0),
                         child: ClipOval(
                           child: Image.network(
-                            photo,
+                            userData['selfie'],
                             fit: BoxFit.cover,
                             width: _getSize.width * 0.22,
-                            height: _getSize.height * 0.112,
+                            height: _getSize.height * 0.1,
                           ),
                         ),
                       ),
@@ -131,28 +126,12 @@ class _ProfileState extends State<Profile> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "$name $surname",
+                    "${userData['name']} ${userData['surname']}",
                     style: AppFonts.boldText
                         .copyWith(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
                     height: 8,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        AppImages.location,
-                        width: 16,
-                      ),
-                      SizedBox(
-                        width: 4,
-                      ),
-                      Text(
-                        "24, Commercial Avenue, Kampala",
-                        style: AppFonts.body1.copyWith(fontSize: 14),
-                      )
-                    ],
                   ),
                   SizedBox(
                     height: 8,
@@ -168,7 +147,7 @@ class _ProfileState extends State<Profile> {
                         width: 4,
                       ),
                       Text(
-                        "Joined: 27th January, 2023",
+                        formatTZDate(userData['createdAt']),
                         style: AppFonts.body1
                             .copyWith(color: Pallete.text, fontSize: 14),
                       )
@@ -212,7 +191,8 @@ class _ProfileState extends State<Profile> {
               ),
               middle(
                 getSize: _getSize,
-                img: images,
+                totalProperty: totalProperty,
+                totalRequest: totalRequest,
               ),
               SizedBox(
                 height: _getSize.height * 0.05,
@@ -246,59 +226,71 @@ class _ProfileState extends State<Profile> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        about,
+                                        userData['about'],
                                         style: AppFonts.body1
                                             .copyWith(color: Pallete.text),
                                       ),
                                       SizedBox(
                                         height: _getSize.height * 0.02,
                                       ),
-                                      Row(
-                                        children: [
-                                          ImageStack(
-                                            imageList: images,
-                                            backgroundColor: Color.fromARGB(
-                                                49, 209, 209, 209),
-                                            extraCountTextStyle: AppFonts.body1
-                                                .copyWith(
-                                                    color: Pallete.primaryColor,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                            totalCount: images
-                                                .length, // If larger than images.length, will show extra empty circle
-                                            imageRadius:
-                                                45, // Radius of each images
-                                            imageCount:
-                                                3, // Maximum number of images to be shown in stack
-                                            imageBorderWidth:
-                                                0.6, // Border width around the images
-                                          ),
-                                          SizedBox(
-                                            width: 24,
-                                          ),
-                                          ClipOval(
-                                            child: Container(
-                                              color: Color.fromARGB(
-                                                  48, 142, 141, 141),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 8.0,
-                                                        horizontal: 14),
-                                                child: Text(
-                                                  "+",
-                                                  style: AppFonts.body1
-                                                      .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: Pallete.text,
-                                                          fontSize: 16),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
+                                      selfieUrls.isNotEmpty
+                                          ? Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.of(context)
+                                                        .pushNamed(
+                                                            AppRoutes.tenants);
+                                                  },
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      ImageStack(
+                                                        imageList: selfieUrls,
+                                                        backgroundColor:
+                                                            Color.fromARGB(49,
+                                                                209, 209, 209),
+                                                        extraCountTextStyle:
+                                                            AppFonts.body1.copyWith(
+                                                                color: Pallete
+                                                                    .primaryColor,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                        totalCount:
+                                                            selfieUrls.length, // If larger than images.length, will show extra empty circle
+                                                        imageRadius:
+                                                            45, // Radius of each images
+                                                        imageCount: selfieUrls.length >
+                                                                3
+                                                            ? 3
+                                                            : tenantCount, // Maximum number of images to be shown in stack
+                                                        imageBorderWidth:
+                                                            0.6, // Border width around the images
+                                                      ),
+                                                      SizedBox(
+                                                        width: _getSize.width *
+                                                            0.02,
+                                                      ),
+                                                      Text(
+                                                        "See More",
+                                                        style: AppFonts.body1
+                                                            .copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color: Pallete
+                                                                    .secondaryColor),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            )
+                                          : Text(
+                                              "You don't have any tenants yet"),
                                     ],
                                   ),
                                 ),
@@ -315,9 +307,8 @@ class _ProfileState extends State<Profile> {
                 child: ButtonWithFuction(
                     text: 'Logout',
                     onPressed: () {
-                    
                       setState(() {
-                          clear();
+                        clear();
                       });
                       Navigator.of(context).pushNamedAndRemoveUntil(
                           AppRoutes.welcomeScreen, (route) => false);
@@ -327,8 +318,8 @@ class _ProfileState extends State<Profile> {
                 height: _getSize.height * 0.05,
               ),
             ],
-          ),
-        ),
+          );
+        })),
       ),
     );
   }
@@ -337,12 +328,15 @@ class _ProfileState extends State<Profile> {
 class middle extends StatelessWidget {
   const middle({
     super.key,
-    required this.img,
     required Size getSize,
+    required this.totalProperty,
+    required this.totalRequest,
   }) : _getSize = getSize;
 
   final Size _getSize;
-  final List<String> img;
+
+  final int totalProperty;
+  final int totalRequest;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -350,7 +344,9 @@ class middle extends StatelessWidget {
       children: [
         Container(
           height: _getSize.height * 0.075,
-          width: _getSize.width * 0.28,
+          width: totalProperty < 99
+              ? _getSize.width * 0.28
+              : _getSize.width * 0.32,
           decoration: BoxDecoration(
               color: Color.fromARGB(97, 29, 89, 103),
               boxShadow: [
@@ -372,7 +368,7 @@ class middle extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("05",
+                    Text(totalProperty.toString(),
                         style: AppFonts.boldText.copyWith(
                           fontSize: _getSize.height * 0.02,
                           color: Color(0xFF1D5A67),
@@ -418,7 +414,8 @@ class middle extends StatelessWidget {
         ),
         Container(
           height: _getSize.height * 0.075,
-          width: _getSize.width * 0.28,
+          width:
+              totalRequest < 99 ? _getSize.width * 0.28 : _getSize.width * 0.32,
           decoration: BoxDecoration(
               color: Color(0xFFCDF7FD),
               boxShadow: [
@@ -440,7 +437,7 @@ class middle extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("02",
+                    Text(totalRequest.toString(),
                         style: AppFonts.boldText.copyWith(
                             fontSize: _getSize.height * 0.02,
                             color: Pallete.text)),
@@ -518,7 +515,7 @@ class bottom extends StatelessWidget {
         width: _getSize.width * 0.9,
         height: _getSize.height * 0.2,
         child: ListView.builder(
-            itemCount: services.length,
+            itemCount: 0,
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.vertical,
             itemBuilder: (context, index) {

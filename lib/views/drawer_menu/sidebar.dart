@@ -1,7 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../../../constants/app_colors.dart';
 import '../../../../constants/app_fonts.dart';
 import '../../../../constants/app_images.dart';
@@ -227,8 +225,9 @@ class SideBar extends StatelessWidget {
                     height: _getSize.height * 0.02,
                   ),
                   InkWell(
-                    onTap: () {
-                      clear();
+                    onTap: ()async {
+                     await clear();
+                      
                       Navigator.of(context)
                           .popAndPushNamed(AppRoutes.loginScreen);
                     },

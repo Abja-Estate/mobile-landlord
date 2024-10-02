@@ -19,6 +19,7 @@ import 'constants/app_routes.dart';
 import 'utils/local_storage.dart';
 import 'views/auth/login/login.dart';
 import 'views/auth/register/register.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'views/dashboard/dashboard.dart';
 
 void main() async {
@@ -29,7 +30,7 @@ void main() async {
 
   //check
   WidgetsFlutterBinding.ensureInitialized();
-
+ await dotenv.load(fileName: ".env");
   AwesomeNotifications().initialize('resource://drawable/logo', [
     // notification icon
     NotificationChannel(
@@ -96,14 +97,14 @@ class MyApp extends StatelessWidget {
 
                     switch (data) {
                       case 0:
-                        return Entrance();
+                        return const Entrance();
                    
                       case 1:
                         return const Welcome();
                       case 2:
                         return LoginScreen();
                          case 3:
-                        return NavBar(initialScreen: Dashboard(),initialTab: 0,);
+                        return NavBar(initialScreen: const Dashboard(),initialTab: 0,);
                     }
                     // if we got our data
                   }

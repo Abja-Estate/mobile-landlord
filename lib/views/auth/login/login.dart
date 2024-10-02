@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:abjalandlord/utils/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -35,8 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isSpecialAdded = false;
   bool isNumAdded = false;
   bool isAboveEight = false;
-
-
 
   void _checkPasswordStrength(String value) {
     dynamic password = value.trim();
@@ -85,7 +84,9 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Stack(
               children: [
-                Image.asset(AppImages.banner),
+                Image.asset(
+                  AppImages.banner,
+                ),
                 Positioned(
                   left: _getSize.width * 0.1,
                   bottom: _getSize.height * 0.13,

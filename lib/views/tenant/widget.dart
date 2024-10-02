@@ -1,3 +1,4 @@
+import 'package:abjalandlord/constants/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:image_stack/image_stack.dart';
 import '../../../constants/app_colors.dart';
@@ -84,7 +85,7 @@ class TenantContent extends StatelessWidget {
               children: [
                 ClipOval(
                   child: Image.network(
-                    tenants[count]['selfie'],
+                    tenants[count]['selfie']??photoHolder,
                     width: _getSize.width * 0.14,
                     height: _getSize.height * 0.06,
                     fit: BoxFit.cover,

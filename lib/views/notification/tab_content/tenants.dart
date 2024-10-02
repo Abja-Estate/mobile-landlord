@@ -4,120 +4,107 @@ import '../../../constants/app_fonts.dart';
 import '../../../constants/app_images.dart';
 
 class TenantsNotifications extends StatelessWidget {
-  const TenantsNotifications({super.key, required Size getSize})
+  const TenantsNotifications(
+      {super.key, required Size getSize, required this.services})
       : _getSize = getSize;
 
   final Size _getSize;
-
+  final List services;
   @override
   Widget build(BuildContext context) {
-    List<Map> services = [
-      {
-        'color': Color(0xFFFCEADA),
-        "date": "Today",
-        'text': 'Painter',
-        'text2': "Painting of Apartment 004",
-        'data': [
-          {
-            'icon': AppImages.cleaner,
-            'color': Color(0xFFFCEADA),
-            'text': '2nd Floor- Back',
-            'text2':
-                "Mr. Eric is in need of house cleaning."
-          },
-         
-        ]
-      },
-      {
-        'color': Color(0xFFEADAFF),
-        'text': 'Rent Paid',
-        "date": "Yesterday",
-        'text2':
-            "Agent Emmanuel has received rent payment from Miss Susan for June 2023.",
-        'data': [
-       
-      
-          {
-            'icon': AppImages.movers,
-            'color': Color(0xFFFFE4E9),
-            'text': '1st Floor- Front',
-            'text2':
-                " Miss Susan is in need of  home movers into their apartment."
-          },
-        ]
-      }
-    ];
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0, bottom: 16),
-      child: SizedBox(
-          width: _getSize.width * 0.9,
-          height: _getSize.height * 0.9,
-          child: ListView.builder(
-              itemCount: services.length,
-              physics: BouncingScrollPhysics(),
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                      top: 8.0, bottom: 8, right: 16, left: 16),
-                  child: Container(
-                    height: services[index]['data'].length == 1
-                        ? _getSize.height * 0.12 // For length < 2
-                        : services[index]['data'].length == 2
-                            ? _getSize.height * 0.17 // For length < 2
-                            : services[index]['data'].length == 3
-                                ? _getSize.height * 0.24 // For length < 2
-                                : services[index]['data'].length == 4
-                                    ? _getSize.height * 0.3
-                                    : _getSize.height * 0.3,
-                    width: _getSize.width,
-                    decoration: BoxDecoration(
-                        color: Pallete.backgroundColor,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Color.fromARGB(44, 85, 80, 80),
-                        //     blurRadius: 11,
-                        //     spreadRadius: 1,
-                        //     offset: Offset(0, 5),
-                        //   )
-                        // ],
-                        borderRadius: BorderRadius.all(Radius.circular(8))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            services[index]['date'],
-                            style: AppFonts.boldText.copyWith(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          SizedBox(
-                            height: services[index]['data'].length == 1
-                                ? _getSize.height * 0.06 // For length < 2
-                                : services[index]['data'].length == 2
-                                    ? _getSize.height * 0.11 // For length < 2
-                                    : services[index]['data'].length == 3
-                                        ? _getSize.height *
-                                            0.17 // For length < 3
-                                        : services[index]['data'].length == 4
-                                            ? _getSize.height *
-                                                0.24 // For length < 4
-                                            : _getSize.height *
-                                                0.24, // For length >= 4
-                            child: buildListItem(context,
-                                services[index]['data'], _getSize.width),
-                          ),
-                        ],
-                      ),
+    return services.isNotEmpty
+        ? Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+            child: Container(
+              child: Center(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: _getSize.height * 0.15,
                     ),
-                  ),
-                );
-              })),
-    );
+                    Image.asset(AppImages.noNotification),
+                    Text("You currently have no tenant notification")
+                  ],
+                ),
+              ),
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+            child: SizedBox(
+                width: _getSize.width * 0.9,
+                height: _getSize.height * 0.9,
+                child: ListView.builder(
+                    itemCount: services.length,
+                    physics: BouncingScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                            top: 8.0, bottom: 8, right: 16, left: 16),
+                        child: Container(
+                          height: services[index]['data'].length == 1
+                              ? _getSize.height * 0.12 // For length < 2
+                              : services[index]['data'].length == 2
+                                  ? _getSize.height * 0.17 // For length < 2
+                                  : services[index]['data'].length == 3
+                                      ? _getSize.height * 0.24 // For length < 2
+                                      : services[index]['data'].length == 4
+                                          ? _getSize.height * 0.3
+                                          : _getSize.height * 0.3,
+                          width: _getSize.width,
+                          decoration: BoxDecoration(
+                              color: Pallete.backgroundColor,
+                              // boxShadow: [
+                              //   BoxShadow(
+                              //     color: Color.fromARGB(44, 85, 80, 80),
+                              //     blurRadius: 11,
+                              //     spreadRadius: 1,
+                              //     offset: Offset(0, 5),
+                              //   )
+                              // ],
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8))),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  services[index]['date'],
+                                  style: AppFonts.boldText.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                SizedBox(
+                                  height: services[index]['data'].length == 1
+                                      ? _getSize.height * 0.06 // For length < 2
+                                      : services[index]['data'].length == 2
+                                          ? _getSize.height *
+                                              0.11 // For length < 2
+                                          : services[index]['data'].length == 3
+                                              ? _getSize.height *
+                                                  0.17 // For length < 3
+                                              : services[index]['data']
+                                                          .length ==
+                                                      4
+                                                  ? _getSize.height *
+                                                      0.24 // For length < 4
+                                                  : _getSize.height *
+                                                      0.24, // For length >= 4
+                                  child: buildListItem(context,
+                                      services[index]['data'], _getSize.width),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    })),
+          );
   }
 }
 

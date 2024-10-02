@@ -67,30 +67,20 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   upload(selfie) async {
-    var res = await AuthAPI.selfie(email, token, selfie);
-  isFetchingImage = true;
+    var res = await AuthAPI.selfie( selfie);
+    isFetchingImage = true;
     print(res);
 
     await saveSelfie(res['data']['selfie']);
     setState(() {
-        
       photo = res['data']['selfie'];
-        isFetchingImage = false;
+      isFetchingImage = false;
     });
-  }
-
-  refresh() async {
-    var res = await AuthAPI.refresh(email);
-
-    print(res);
-
-    await saveToken(res['data']);
   }
 
   @override
   void initState() {
     getPhoto();
-    refresh();
     super.initState();
   }
 
@@ -148,14 +138,20 @@ class _EditProfileState extends State<EditProfile> {
                     dashPattern: [10, 16],
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
-                      child: !isFetchingImage? ClipOval(
-                        child: Image.network(
-                          photo,
-                          fit: BoxFit.cover,
-                       width: _getSize.width * 0.23,
-                          height: _getSize.height * 0.12,
-                        ),
-                      ): SpinKitRing(size: 30, color: Pallete.primaryColor,lineWidth: 2.0,),
+                      child: !isFetchingImage
+                          ? ClipOval(
+                              child: Image.network(
+                                photo,
+                                fit: BoxFit.cover,
+                                width: _getSize.width * 0.23,
+                                height: _getSize.height * 0.12,
+                              ),
+                            )
+                          : SpinKitRing(
+                              size: 30,
+                              color: Pallete.primaryColor,
+                              lineWidth: 2.0,
+                            ),
                     ),
                   ),
                   Positioned(
@@ -182,14 +178,10 @@ class _EditProfileState extends State<EditProfile> {
                   children: [
                     CustomInput3(
                       validator: Validators.nameValidator,
-                      label: name,
+                      label: 'Name',
                       hint: 'Name',
                       onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            name = "Name";
-                          });
-                        } else {}
+                        _updateData['name'] = val;
                       },
                       onSaved: (value) {
                         _updateData['name'] = value;
@@ -200,14 +192,10 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                     CustomInput3(
                       validator: Validators.nameValidator,
-                      label: surname,
+                      label: "Surname",
                       hint: 'Surname',
                       onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            surname = "Surname";
-                          });
-                        } else {}
+                        _updateData['surname'] = val;
                       },
                       onSaved: (value) {
                         _updateData['surname'] = value;
@@ -220,8 +208,10 @@ class _EditProfileState extends State<EditProfile> {
                       height: _getSize.height * 0.04,
                     ),
                     CustomInput3(
-                      validator: Validators.nameValidator,
-                      myController: TextEditingController(text: email),
+                      validator: Validators.emailValidator,
+                      onChanged: (v) {
+                        _updateData['email'] = v;
+                      },
                       label: 'Email',
                       hint: 'Email',
                       onSaved: (value) {
@@ -232,10 +222,13 @@ class _EditProfileState extends State<EditProfile> {
                       height: _getSize.height * 0.04,
                     ),
                     CustomInput3(
-                      validator: Validators.nameValidator,
+                
                       type: 'number',
                       label: 'Phone',
                       hint: 'Phone',
+                       onChanged: (v) {
+                        _updateData['phone'] = v;
+                      },
                       onSaved: (value) {
                         _updateData['phone'] = value;
                       },
@@ -247,41 +240,18 @@ class _EditProfileState extends State<EditProfile> {
                       validator: Validators.nameValidator,
                       label: 'About',
                       hint: 'About',
+                       onChanged: (v) {
+                        _updateData['about'] = v;
+                      },
                       onSaved: (value) {
                         _updateData['about'] = value;
-                        setState(() {
-                          about = value!;
-                        });
+                        
                       },
                     ),
                     SizedBox(
                       height: _getSize.height * 0.04,
                     ),
-                    CustomInput3(
-                      validator: Validators.nameValidator,
-                      label: 'Password',
-                      hint: 'Password',
-                      onSaved: (value) {
-                        _updateData['password'] = value;
-                        setState(() {
-                          password = value!;
-                        });
-                      },
-                    ),
-                    SizedBox(
-                      height: _getSize.height * 0.04,
-                    ),
-                    CustomInput3(
-                      validator: Validators.nameValidator,
-                      label: 'Confirm Password',
-                      hint: 'Confirm Password',
-                      onSaved: (value) {
-                        _updateData['confirmPassword'] = value;
-                        setState(() {
-                          password = value!;
-                        });
-                      },
-                    ),
+                   
                   ],
                 ),
               ),
@@ -297,7 +267,8 @@ class _EditProfileState extends State<EditProfile> {
                     UpdateUtil.update(_updateFormKey, context, _updateData);
                     // Navigator.of(context).pushNamed(AppRoutes.navbar);
                   }),
-            ), SizedBox(
+            ),
+            SizedBox(
               height: _getSize.height * 0.05,
             ),
           ],

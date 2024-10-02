@@ -10,11 +10,11 @@ import 'package:abjalandlord/constants/app_fonts.dart';
 import 'package:abjalandlord/constants/app_routes.dart';
 import 'package:abjalandlord/constants/resources.dart';
 import 'package:abjalandlord/utils/app_utils.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart' as imgpika;
+import '../../../components/inpu_border.dart';
 import '../../../constants/app_images.dart';
 import '../../../network/property.dart';
 import '../../../utils/local_storage.dart';
@@ -37,8 +37,10 @@ class _AddUnitState extends State<AddUnit> {
   var landlordid = '';
   var surname = '';
 
-  imgpika.XFile? image; //this is the state variable
-  bool isFetchingImage = false;
+  imgpika.XFile? image;
+
+  bool isFetchingImage = false; //this is the state variable
+
   getData() async {
     landlordid = await showId();
     name = await showName();
@@ -54,19 +56,15 @@ class _AddUnitState extends State<AddUnit> {
 
   String randomString = generateRandomString(5, "a");
 
-  bool isuploaded = false;
   upload(selfie) async {
     var photo = "";
-    isFetchingImage = true;
-    setState(() {});
+
     var res = await PropertyAPI.uploadImage(selfie);
     setState(() {
       photo = res['data']['selfie'];
-
       isFetchingImage = false;
-      isuploaded = true;
     });
-    print(photo);
+
     return photo;
   }
 
@@ -76,11 +74,14 @@ class _AddUnitState extends State<AddUnit> {
 
   void addUnit() {
     setState(() {
-      moreUnits
-          .add(UnitItem(false, false, "", ",", "", "", "", imgHolder, "", ""));
+      moreUnits.add(UnitItem(false, false, "", ",", "", "", "", imgHolder, "",
+          "", false, false, "", "", "", ""));
     });
   }
 
+  var mcLength = 0.235;
+  var txLength = 0.235;
+  var extraLength = 0.235;
   collectUnitData(single) {
     List<Map<String, dynamic>> dataList =
         moreUnits.asMap().entries.map((entry) {
@@ -100,27 +101,74 @@ class _AddUnitState extends State<AddUnit> {
         "store": item.store,
         "isTaken": false,
         "isInUse": false,
-        "monthlyCost": "",
-        "extraWages": "",
-        "tax": "",
-        "photo": item.photo
+        "monthlyCost": item.mc,
+        "extraWages": item.extra,
+        "tax": item.tax,
+        "photo": item.photo,
+        "nick": item.nick
       };
     }).toList();
-    // Now dataList contains all items as map objects
-    // You can use this dataList as needed
-    if (single) {
-      _propertyData['unitData'] = dataList.sublist(0, 1);
-    } else {
-      _propertyData['unitData'] = dataList;
-    }
+    print(dataList);
 
-    AddPropertyUtil.add(context, _propertyData);
+    bool hasEmptyData = dataList.any((data) =>
+        data["bedroom"] == null ||
+        data["bedroom"].toString().isEmpty ||
+        data["bathroom"] == null ||
+        data["bathroom"].toString().isEmpty ||
+        data["lightMeter"] == null ||
+        data["lightMeter"].toString().isEmpty ||
+        data["waterMeter"] == null ||
+        data["waterMeter"].toString().isEmpty ||
+        data["toilet"] == null ||
+        data["toilet"].toString().isEmpty ||
+        data["wifi"] == null ||
+        data["wifi"].toString().isEmpty ||
+        data["power"] == null ||
+        data["power"].toString().isEmpty ||
+        data["store"] == null ||
+        data["store"].toString().isEmpty ||
+        data["photo"] == null ||
+        data["photo"].toString().isEmpty ||
+        data["tax"] == null ||
+        data["tax"].toString().isEmpty ||
+        data["monthlyCost"] == null ||
+        data["monthlyCost"].toString().isEmpty ||
+        data["extraWages"] == null ||
+        data["extraWages"].toString().isEmpty ||
+        data["nick"] == null ||
+        data["nick"].toString().isEmpty);
+    if (hasEmptyData) {
+      // Handle case where there's empty data
+      // For example, show an error message or prevent further action
+      AppUtils.ErrorDialog(
+        context,
+        'Some fields are empty',
+        "You need to fill all the fields",
+        'Close',
+        Icon(
+          Icons.error_rounded,
+          color: Color.fromARGB(255, 213, 10, 10),
+          size: 30,
+        ),
+      );
+    } else {
+      // Proceed with adding the property data
+      if (single) {
+        _propertyData['unitData'] = dataList.sublist(0, 1);
+      } else {
+        _propertyData['unitData'] = dataList;
+      }
+
+      AddPropertyUtil.add(context, _propertyData);
+    }
   }
 
   @override
   void initState() {
     _propertyData['unitData'] = [];
-
+    mcLength;
+    txLength;
+    extraLength;
     getData();
     addUnit();
     super.initState();
@@ -142,13 +190,13 @@ class _AddUnitState extends State<AddUnit> {
     final _getSize = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () async {
-      Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            NavBar(initialScreen: Property(),initialTab: 2)),
-                                    (route) => false,
-                                  );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  NavBar(initialScreen: Property(), initialTab: 2)),
+          (route) => false,
+        );
         return true;
       },
       child: Scaffold(
@@ -189,8 +237,10 @@ class _AddUnitState extends State<AddUnit> {
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) {
                           String userAccessCodeString =
-                              generateRandomString(5, "b");
-                          moreUnits[index].id = "$pID-00$userAccessCodeString";
+                              generateRandomString(3, "b");
+                          // moreUnits[index].id = "$pID-00$userAccessCodeString";
+                          moreUnits[index].id =
+                              "${moreUnits[index].nick}-$userAccessCodeString";
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 32.0),
                             child: Column(children: [
@@ -231,6 +281,21 @@ class _AddUnitState extends State<AddUnit> {
                               SizedBox(
                                 height: _getSize.height * 0.03,
                               ),
+                              CustomInput3(
+                                label: "Unit name",
+                                onChanged: (p) {
+                                  moreUnits[index].nick = p!;
+                                  setState(() {});
+                                },
+                                onSaved: (p) {
+                                  moreUnits[index].nick = p!;
+                                  setState(() {});
+                                },
+                                hint: "name: Quater01",
+                              ),
+                              SizedBox(
+                                height: _getSize.height * 0.03,
+                              ),
                               NewWidget(
                                 data: (value) {
                                   moreUnits[index].bedroom = value!;
@@ -239,7 +304,9 @@ class _AddUnitState extends State<AddUnit> {
                                   // moreUnits[index].id =
                                   //     "$pID-00$userAccessCodeString";
                                 },
-                                data2: (value) {},
+                                data2: (value) {
+                                  moreUnits[index].store = value!;
+                                },
                                 getSize: _getSize,
                                 label: "Bedroom",
                                 hint: "ex: 3 Bedrooms",
@@ -388,27 +455,53 @@ class _AddUnitState extends State<AddUnit> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Pallete.fade),
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            color: Color(0xFFDAE7D9)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 1),
-                                          child: Center(
-                                              child: Text(
-                                            "\$/yr",
-                                            style: AppFonts.bodyText.copyWith(
-                                                fontSize: 12,
-                                                color: Pallete.primaryColor,
-                                                fontWeight: FontWeight.w600),
-                                          )),
+                                      SizedBox(
+                                        height: _getSize.height * 0.04,
+                                        width: _getSize.width * mcLength,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            errorMaxLines: 1,
+                                            filled: true,
+                                            fillColor: Color(0xFFDAE7D9),
+                                            hintStyle: AppFonts.hintStyle,
+                                            errorStyle: AppFonts.errorStyle,
+                                            prefixText: "\$",
+                                            suffixText: "/ month",
+                                            suffixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            prefixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            border: InputBorder.none,
+                                          ),
+                                          onSaved: (p) {
+                                            moreUnits[index].mc = p!;
+                                            setState(() {});
+                                          },
+                                          onChanged: (p) {
+                                            moreUnits[index].mc = p;
+                                            if (p.length <= 3) {
+                                              setState(() {
+                                                mcLength = 0.235;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                mcLength = 0.29;
+                                              });
+                                            }
+                                          },
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                   SizedBox(
@@ -438,28 +531,53 @@ class _AddUnitState extends State<AddUnit> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        width: 84,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Pallete.fade),
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            color: Color(0xFFDAE7D9)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 1),
-                                          child: Center(
-                                              child: Text(
-                                            "\$/yr",
-                                            style: AppFonts.bodyText.copyWith(
-                                                fontSize: 12,
-                                                color: Pallete.primaryColor,
-                                                fontWeight: FontWeight.w600),
-                                          )),
+                                      SizedBox(
+                                        height: _getSize.height * 0.04,
+                                        width: _getSize.width * extraLength,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            errorMaxLines: 1,
+                                            filled: true,
+                                            fillColor: Color(0xFFDAE7D9),
+                                            hintStyle: AppFonts.hintStyle,
+                                            errorStyle: AppFonts.errorStyle,
+                                            prefixText: "\$",
+                                            suffixText: "/ month",
+                                            suffixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            prefixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            border: InputBorder.none,
+                                          ),
+                                          onSaved: (p) {
+                                            moreUnits[index].extra = p!;
+                                            setState(() {});
+                                          },
+                                          onChanged: (p) {
+                                            moreUnits[index].extra = p;
+                                            if (p.length <= 3) {
+                                              setState(() {
+                                                extraLength = 0.235;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                extraLength = 0.29;
+                                              });
+                                            }
+                                          },
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                   SizedBox(
@@ -489,28 +607,54 @@ class _AddUnitState extends State<AddUnit> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        width: 84,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Pallete.fade),
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            color: Color(0xFFDAE7D9)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 1),
-                                          child: Center(
-                                              child: Text(
-                                            "\$/yr",
-                                            style: AppFonts.bodyText.copyWith(
-                                                fontSize: 12,
-                                                color: Pallete.primaryColor,
-                                                fontWeight: FontWeight.w600),
-                                          )),
+                                      SizedBox(
+                                        height: _getSize.height * 0.04,
+                                        width: _getSize.width * txLength,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10),
+                                            errorMaxLines: 1,
+                                            filled: true,
+                                            fillColor: Color(0xFFDAE7D9),
+                                            hintStyle: AppFonts.hintStyle,
+                                            errorStyle: AppFonts.errorStyle,
+                                            prefixText: "\$",
+                                            suffixText: "/ month",
+                                            suffixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            prefixStyle: AppFonts.body1
+                                                .copyWith(
+                                                    color: Pallete.primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                            border: InputBorder.none,
+                                          ),
+                                          onSaved: (p) {
+                                            moreUnits[index].tax = p!;
+                                            setState(() {});
+                                          },
+                                          onChanged: (p) {
+                                            moreUnits[index].tax = p!;
+                                            print(moreUnits[index]);
+                                            if (p.length <= 3) {
+                                              setState(() {
+                                                txLength = 0.235;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                txLength = 0.29;
+                                              });
+                                            }
+                                          },
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -525,54 +669,71 @@ class _AddUnitState extends State<AddUnit> {
                                   final img = await _picker.pickImage(
                                       source: imgpika.ImageSource.gallery);
                                   if (img != null) {
+                                    print(isFetchingImage);
+                                    isFetchingImage = true;
+                                    moreUnits[index].isFetchedImage =
+                                        isFetchingImage;
+                                    setState(() {});
+                                    print(isFetchingImage);
                                     File imageFile = File(img.path);
                                     Uint8List imageBytes =
                                         await imageFile.readAsBytes();
                                     String base64String =
                                         base64Encode(imageBytes);
-                                    print(base64String);
-                                    moreUnits[index].photo =
+
+                                    String uploadedPhoto =
                                         await upload(base64String);
-                                    setState(() {});
+                                    print(uploadedPhoto);
+
+                                    if (uploadedPhoto != "") {
+                                      setState(() {
+                                        moreUnits[index].photo = uploadedPhoto;
+                                        moreUnits[index].isuploaded = true;
+                                        moreUnits[index].isFetchedImage =
+                                            isFetchingImage;
+
+                                        print(moreUnits[index].isFetchedImage);
+                                      });
+                                    } else {}
                                   }
                                 },
                                 child: DottedBorder(
                                   color: Pallete.text,
                                   strokeWidth: 0.8,
-                                  dashPattern: [6, 3, 3],
+                                  dashPattern: const [6, 3, 3],
                                   borderType: BorderType.RRect,
-                                  radius: Radius.circular(5),
-                                  padding: EdgeInsets.all(4),
+                                  radius: const Radius.circular(5),
+                                  padding: const EdgeInsets.all(4),
                                   child: ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5)),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
                                     child: Container(
                                       height: _getSize.height * 0.05,
                                       width: _getSize.width * 0.6,
                                       color: Color(0xFFDAE7D9),
-                                      child: !isFetchingImage
+                                      child: !moreUnits[index].isFetchedImage
                                           ? Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                !isuploaded
-                                                    ? Icon(
+                                                !moreUnits[index].isuploaded
+                                                    ? const Icon(
                                                         Icons.download,
                                                         color: Pallete
                                                             .primaryColor,
                                                       )
-                                                    : Icon(
+                                                    : const Icon(
                                                         Icons
                                                             .check_circle_rounded,
                                                         color:
                                                             Pallete.whiteColor,
                                                       ),
-                                                !isuploaded
+                                                !moreUnits[index].isuploaded
                                                     ? Text("Upload Unit Image")
                                                     : Text("Uploaded")
                                               ],
                                             )
-                                          : SpinKitRing(
+                                          : const SpinKitRing(
                                               size: 30,
                                               color: Pallete.primaryColor,
                                               lineWidth: 2.0,
@@ -623,8 +784,9 @@ class _AddUnitState extends State<AddUnit> {
                         ),
                         GestureDetector(
                           onTap: () {
+                            print(moreUnits);
                             if (_propertyData["structure"] == "Standalone") {
-                              addUnit();
+                              // addUnit();
                               collectUnitData(true);
                             } else {
                               collectUnitData(false);
@@ -634,8 +796,6 @@ class _AddUnitState extends State<AddUnit> {
                               _propertyData["landlordID"] = landlordid;
                               _propertyData["propertyID"] = pID;
                             });
-
-                            print(_propertyData);
                           },
                           child: Container(
                             width: _getSize.width * 0.4,
@@ -726,9 +886,30 @@ class UnitItem {
   String photo;
   String id;
   String store;
+  bool isuploaded;
+  bool isFetchedImage;
+  String nick;
+  String mc;
+  String tax;
+  String extra;
 
-  UnitItem(this.isPowerChecked, this.isWifiChecked, this.light, this.bedroom,
-      this.bathroom, this.toilet, this.water, this.photo, this.id, this.store);
+  UnitItem(
+      this.isPowerChecked,
+      this.isWifiChecked,
+      this.light,
+      this.bedroom,
+      this.bathroom,
+      this.toilet,
+      this.water,
+      this.photo,
+      this.id,
+      this.store,
+      this.isuploaded,
+      this.isFetchedImage,
+      this.nick,
+      this.mc,
+      this.tax,
+      this.extra);
 }
 
 String generateRandomString(int length, String a) {

@@ -10,7 +10,7 @@ import '../app_utils.dart';
 import '../local_storage.dart';
 
 class RegisterUtil {
-  static Future<String> register(GlobalKey<FormState> formkey,
+  static Future<dynamic> register(GlobalKey<FormState> formkey,
       BuildContext context, Map<String, dynamic> registerData) async {
 
     await saveEmail(registerData['email']);
@@ -37,7 +37,6 @@ class RegisterUtil {
 
           saveOnce(1);
           await saveId(value['data']['_id'].toString());
-          await saveToken(value['data']['accessToken']);
           await saveEmail(value['data']['email']);
           Navigator.of(context).pushNamed(AppRoutes.registerOTPScreen);
         } else {
@@ -92,6 +91,6 @@ class RegisterUtil {
       });
     }
 
-    return result;
+
   }
 }

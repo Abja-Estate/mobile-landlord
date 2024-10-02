@@ -32,7 +32,7 @@ class _LoadingHomeScreenState extends State<LoadingHomeScreen>
           ..addStatusListener((status) {
             if (status == AnimationStatus.completed) {
             Navigator.of(context)
-                              .pushReplacementNamed(AppRoutes.package);
+                              .pushReplacementNamed(AppRoutes.dashboardScreen);
             }
           });
 

@@ -8,6 +8,7 @@ import '../constants/app_fonts.dart';
 import 'package:uuid/uuid.dart';
 
 import '../constants/app_routes.dart';
+import '../views/navbar/nav.dart';
 import 'loader.dart';
 
 class AppUtils {
@@ -406,8 +407,8 @@ class AppUtils {
   }
 
   static dynamic SuccessDialog(BuildContext context, String titleText,
-      String contentText, Widget Icon, String bottomText, String sroute,
-      {String? routeData}) {
+      String contentText, Widget Icon, String bottomText,
+      {String? sroute,String? routeData}) {
     // set up the buttons
 
     // title
@@ -451,7 +452,7 @@ class AppUtils {
       onTap: () {
         Navigator.pop(context);
         Navigator.of(context).pushNamed(
-          sroute,
+          sroute!,
           arguments: {
             'data': routeData,
           },
@@ -495,95 +496,102 @@ class AppUtils {
     );
   }
 
-  // static dynamic showAlertDialog(
-  //   BuildContext context,
-  //   String titleText,
-  //   String contentText,
-  //   String confirmText,
-  //   String cancelText,
-  //   Function() confirmFunction,
-  // ) {
-  //   // set up the buttons
-  //   Widget cancelButton = TextButton(
-  //     child: Text(
-  //       cancelText,
-  //       style: AppFonts.dialogColoredText
-  //           .copyWith(color: Pallete.kText, fontSize: 12),
-  //     ),
-  //     onPressed: () => Navigator.of(context).pop(),
-  //   );
 
-  //   Widget confirmButton = TextButton(
-  //     child: Text(
-  //       confirmText,
-  //       style: AppFonts.dialogColoredText
-  //           .copyWith(fontWeight: FontWeight.w600, color: Pallete.primaryColor),
-  //     ),
-  //     onPressed: confirmFunction,
-  //   );
 
-  //   // title
-  //   Widget title = Center(
-  //     child: Text(
-  //       titleText,
-  //       style: AppFonts.bodyThinColoured.copyWith(
-  //         fontWeight: FontWeight.w600,
-  //         fontSize: 17,
-  //       ),
-  //       textAlign: TextAlign.center,
-  //     ),
-  //   );
+  static dynamic SuccessDialogWithNav(BuildContext context, String titleText,
+      String contentText, Widget Icon, String bottomText, Widget sroute,int pointer,
+      {String? routeData}) {
+    // set up the buttons
 
-  //   // content
-  //   Widget content = Text(
-  //     contentText,
-  //     style: AppFonts.bodyText.copyWith(fontSize: 13),
-  //     textAlign: TextAlign.center,
-  //   );
+    // title
+    Widget title = Center(
+      child: Column(
+        children: [
+          Icon,
+          const SizedBox(
+            height: 8,
+          ),
+          Text(
+            titleText,
+            style: AppFonts.bodyText.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Pallete.black,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.35,
+            child: Text(
+              contentText,
+              style:
+                  AppFonts.bodyText.copyWith(fontSize: 12, color: Pallete.text),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+        ],
+      ),
+    );
 
-  //   // set up the AlertDialog
-  //   dynamic alert = Platform.isIOS
-  //       ? CupertinoAlertDialog(
-  //           title: title,
-  //           content: content,
-  //           actions: [
-  //             Row(
-  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //               children: [
-  //                 cancelButton,
-  //                 confirmButton,
-  //               ],
-  //             )
-  //           ],
-  //         )
-  //       : AlertDialog(
-  //           title: title,
-  //           content: content,
-  //           shape: const RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.all(
-  //               Radius.circular(14),
-  //             ),
-  //           ),
-  //           backgroundColor: const Color.fromRGBO(242, 242, 242, 1),
-  //           actions: [
-  //             Row(
-  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //               children: [
-  //                 cancelButton,
-  //                 confirmButton,
-  //               ],
-  //             )
-  //           ],
-  //         );
+    // content
+    Widget content = GestureDetector(
+      onTap: () {
+        Navigator.pop(context);
+           Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => NavBar(
+                      initialScreen: sroute,
+                      initialTab: pointer,
+                    )),
+            (route) => false,
+          );
+      },
+      child: Text(
+        bottomText,
+        style: TextStyle(
+            // decoration: TextDecoration.underline,
+            color: Pallete.secondaryColor,
+            fontSize: 12),
+        textAlign: TextAlign.center,
+      ),
+    );
 
-  //   // show the dialog
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return alert;
-  //     },
-  //   );
-  // }
+    // set up the AlertDialog
+    dynamic alert = Platform.isIOS
+        ? CupertinoAlertDialog(
+            title: title,
+            content: content,
+            actions: [],
+          )
+        : AlertDialog(
+            title: title,
+            content: content,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(14),
+              ),
+            ),
+            backgroundColor: const Color.fromRGBO(242, 242, 242, 1),
+            actions: [],
+          );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+
 
   static uuid() {
     var uuid = const Uuid();
@@ -610,10 +618,9 @@ class AppUtils {
                   AppFonts.bodyText.copyWith(color: Colors.white, fontSize: 14),
             ),
             style: OutlinedButton.styleFrom(
-              shape: const RoundedRectangleBorder(
+              foregroundColor: Colors.white, shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10))),
               padding: const EdgeInsets.symmetric(vertical: 16),
-              primary: Colors.white,
               backgroundColor: Pallete.primaryColor,
               textStyle: const TextStyle(
                   color: Colors.black,

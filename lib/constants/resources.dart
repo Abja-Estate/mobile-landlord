@@ -1,15 +1,18 @@
-import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 
 import 'app_images.dart';
 
-const BaseURL = "https://casmara-app-api.onrender.com/api";
+String BaseURL = dotenv.env['PROD_URL']!;
 String getCurrency() {
   return '₦'; // Unicode character for Naira symbol
 }
  var photoHolder = 'https://picsum.photos/200';
-String APIKEY = '4f1fe63a-5f8b-4e7f-ad38-e68445079351';
+String WebsocketURL=dotenv.env['WSS_URL']!;
+String APIKEY = dotenv.env['API_KEY']!; 
+String WebsocketAPIKEY =dotenv.env["WEBSOCKET_API_KEY"]!;
 
 const String aboutUs =
     "We are tackling the problems of access to and cost of quality medication especially for patients with Non communicable diseases in Nigeria. We are operational in the cities of Enugu and Lagos state at this time. Other states coming soon!";
@@ -49,57 +52,66 @@ const imgHolder =
     "https://i.ibb.co/GtsgGKg/d5d5ce76ff5f.jpg";
 
 
-  List<Map> services = [
-      {'icon': AppImages.agent,'color2': Color(0xFF47893F), 'color': Color(0xFFDAE7D9), 'text': 'House Agent'},
-      {
-        'icon': AppImages.electrician,
-        'color': Color(0xFFFCEADA),
-        'color2': Color(0xFFEF9645),
-        
-        'text': 'Electrician'
-      },
-      {
-        'icon': AppImages.plumber,
-        'color': Color(0xFFEADAFF),
-        'color2': Color(0xFF750790),
-        'text': 'Plumber'
-      },
-      {
-        'icon': AppImages.fumigator,
-        'color': Color(0xFFFFE4E9),
-       'color2': Color(0xFFFF7892),
-        'text': 'Fumigator'
-      },
-      {
-        'icon': AppImages.cleaner,
-        'color2': Color(0xFFEA4335),
-      'color': Color(0xFFFBD9D7),
-        'text': 'Cleaner'
-      },
-      {
-        'icon': AppImages.painter,
-        'color2': const Color(0xFF22DBBA),
-       'color': Color(0xFFD3F8F1),
-        'text': 'Painter'
-      },
-      {
-        'icon': AppImages.gardener,
-        'color2': Color(0xFFFF5F00),
-     'color': Color(0xFFFFDFCC),
-        'text': 'Gardener'
-      },{
-        'icon': AppImages.movers,
-        'color2': Color(0xFF750790),
-      'color': Color(0xFFDAE7D9),
-        'text': 'Mover'
-      },{
-        'icon': AppImages.carpenter,
-        'color2': Color(0xFF5DADEC),
-        'color': Color(0xFFDAE7D9),
-       
-        'text': 'Carpenter'
-      },
-    ];
+List<Map> services = [
+  {
+    'icon': AppImages.electrician,
+    'color': Color(0xFFFCEADA),
+    'color2': Color(0xFFEF9645),
+    'text': 'Electrician',
+    'job': ["Install lights", "Install appliances"]
+  },
+  {
+    'icon': AppImages.plumber,
+    'color': Color(0xFFEADAFF),
+    'color2': Color(0xFF9747FF),
+    'text': 'Plumber',
+    'job': ["Fix broken tap", "Fix leaking sink"]
+  },
+  {
+    'icon': AppImages.fumigator,
+    'color': Color(0xFFFFE4E9),
+    'color2': Color(0xFFFF7892),
+    'text': 'Fumigator',
+    'job': ["Fumigate house", "Fumigate compound"]
+  },
+  {
+    'icon': AppImages.cleaner,
+    'color2': Color(0xFFEA4335),
+    'color': Color(0xFFFBD9D7),
+    'text': 'Cleaner',
+    'job': ["Clean house"]
+  },
+  {
+    'icon': AppImages.painter,
+    'color2': const Color(0xFF22DBBA),
+    'color': Color(0xFFD3F8F1),
+    'text': 'Painter',
+    'job': ['Painting']
+  },
+  {
+    'icon':AppImages.agent,
+    'color2': Color(0xFFFF5F00),
+    'color': Color(0xFFFFDFCC),
+    'text': 'Gardener',
+    'job': ["Cut grass", "Hedge Trimming"]
+  },
+  {
+    'icon': AppImages.movers,
+    'color2': Color(0xFF750790),
+    'color': Color(0xFFE3CDE9),
+    'text': 'Mover',
+    'job': ["Request mover"]
+  },
+  {
+    'icon': AppImages.agent,
+    'color2': Color(0xFF5DADEC),
+    'color': Color(0xFFDFEFFB),
+    'text': 'Carpenter',
+    'job': ['Carpentry works']
+  },
+];
+
+  
    List<Map<String, dynamic>> priority = [
   {
     "type": "High Priority",

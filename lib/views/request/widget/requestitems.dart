@@ -55,3 +55,30 @@ Color getIconAssetColor(String iconKey) {
       return Color(0xFFFCEADA);
   }
 }
+
+Color getIconAssetColorDeep(String iconKey) {
+  switch (iconKey) {
+    case 'Fumigator':
+      return Color(0xFFFF7892);
+
+    case 'Plumber':
+      return Color(0xFF9747FF);
+    case 'Gardener':
+      return Color(0xFFFF5F00);
+    case 'Cleaner':
+      return Color(0xFFEA4335);
+    case 'Painter':
+      return const Color(0xFF22DBBA);
+    case 'Mover':
+      return Color(0xFF750790);
+    case 'House Agent':
+      return Color(0xFFDAE7D9);
+    case 'Carpenter':
+      return Color(0xFF5DADEC);
+    case 'Electrician':
+      return Color(0xFFEF9645);
+
+    default:
+      return Color(0xFFFCEADA);
+  }
+}

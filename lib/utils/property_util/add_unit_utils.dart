@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../constants/app_images.dart';
 import '../../constants/app_routes.dart';
 import '../../provider/auth_provider.dart';
+import '../../views/property/property.dart';
 import '../app_utils.dart';
 import '../local_storage.dart';
 
@@ -21,29 +22,35 @@ class AddUnitUtil {
       Navigator.of(context).pop();
 
       if (value['statusCode'] == 200) {
-  AppUtils.SuccessDialog(
-              context,
-              "Successful",
-              "A new Unit have been successfully added.",
-              Image.asset(
-                AppImages.success,
-                width: 48,
-              ),
-              "View Property",
-              AppRoutes.propDetails,routeData: value['data']['propertyID']);
+        AppUtils.SuccessDialogWithNav(
+            context,
+            "Successful",
+            "Your Property and Units have been successfully added.",
+            Image.asset(
+              AppImages.success,
+              width: 48,
+            ),
+            "View Property",
+            const Property(),
+            2);
+        Provider.of<PropertyProvider>(context, listen: false)
+            .getAllProperties();
       } else {
-  
-          AppUtils.showAlertDialog(
-              context,
-              'Oops, something isn\'t right!',
-              value['error'],
-              'Close',
-              'Try again',
-              () => Navigator.of(context).pop());
+        if (value['statusCode'] == 403) {
+          if (value["error"] == "Expired Bearer token") {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                AppRoutes.loginScreen, (route) => false);
+          } else {
+            AppUtils.showAlertDialog(
+                context,
+                'Oops, something isn\'t right!',
+                value['error'],
+                'Close',
+                'Try again',
+                () => Navigator.of(context).pop());
+          }
         }
-
-       
-      
+      }
     });
 
     return result;

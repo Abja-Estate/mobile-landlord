@@ -26,17 +26,22 @@ class ResetPasswordUtil {
         Navigator.of(context).pop();
         print(value);
         if (value['statusCode'] != 200) {
-          AppUtils.ErrorDialog(
-            context,
-            'Error',
-            value['error'],
-            'Close',
-            const Icon(
-              Icons.error_rounded,
-              color: Color.fromARGB(255, 213, 10, 10),
-              size: 30,
-            ),
-          );
+          if (value["error"] == "Expired Bearer token") {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                AppRoutes.loginScreen, (route) => false);
+          } else {
+            AppUtils.ErrorDialog(
+              context,
+              'Error',
+              value['error'],
+              'Close',
+              const Icon(
+                Icons.error_rounded,
+                color: Color.fromARGB(255, 213, 10, 10),
+                size: 30,
+              ),
+            );
+          }
         } else {
           Navigator.of(context).pushNamedAndRemoveUntil(
               AppRoutes.loginScreen, (Route<dynamic> route) => false);
